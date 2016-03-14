@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import com.ds.button.FunctionButton;
+import com.ds.main.MainFrame;
 import com.ds.panel.FunctionPanel;
 
 public class PanelControler {
@@ -28,6 +29,8 @@ public class PanelControler {
 	//画面分割器
 	public static JSplitPane splitPaneVer = null;
 	public static JSplitPane splitPaneHor = null;
+	//主界面的JFrame, MyDialog会用到
+	public static MainFrame mainFrame = null;
 	//算法模拟面板
 	public static class SimulatePanel{
 		public static class FirstPanel{
@@ -189,14 +192,14 @@ public class PanelControler {
 				splitPaneVer = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 				splitPaneVer.setContinuousLayout(true);
 				splitPaneVer.setOneTouchExpandable(true);
-				splitPaneVer.setResizeWeight(0.5);
-				splitPaneVer.setTopComponent(drawControler.getCodeScrollPane());
-				splitPaneVer.setBottomComponent(drawControler.getMsgScrollPane());
+				splitPaneVer.setResizeWeight(0.7);
+				splitPaneVer.setTopComponent(drawControler.getMainCodePanel());
+				splitPaneVer.setBottomComponent(drawControler.getMainMsgPanel());
 				
 				splitPaneHor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 				splitPaneHor.setContinuousLayout(true);
 				splitPaneHor.setOneTouchExpandable(true);
-				splitPaneHor.setResizeWeight(0.7);
+				splitPaneHor.setResizeWeight(0.8);
 				splitPaneHor.setLeftComponent(drawControler.getDrawScrollPane());
 				splitPaneHor.setRightComponent(splitPaneVer);
 				this.add(splitPaneHor);

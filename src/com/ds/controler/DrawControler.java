@@ -3,10 +3,13 @@ package com.ds.controler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import com.ds.dialog.MyDialog;
 import com.ds.main.MainFrame;
 import com.ds.model.ArrayModel;
 import com.ds.model.BTreeModel;
@@ -41,8 +44,8 @@ public class DrawControler {
 	private DrawModel model;
 	
 	private JScrollPane drawScrollPane;
-	private JScrollPane codeScrollPane;
-	private JScrollPane msgScrollPane;
+	private JPanel mainCodePanel;
+	private JPanel mainMsgPanel;
 	
 	public DrawModel getDrawModel(){
 		return model;
@@ -59,12 +62,16 @@ public class DrawControler {
 	public JScrollPane getDrawScrollPane() {
 		return drawScrollPane;
 	}
-	public JScrollPane getCodeScrollPane() {
-		return codeScrollPane;
+	
+
+	public JPanel getMainCodePanel() {
+		return mainCodePanel;
 	}
-	public JScrollPane getMsgScrollPane() {
-		return msgScrollPane;
+
+	public JPanel getMainMsgPanel() {
+		return mainMsgPanel;
 	}
+
 
 	private String data = null;
 	
@@ -92,135 +99,219 @@ public class DrawControler {
 		JPanel backMsgPanel = new JPanel(new BorderLayout());
 		backMsgPanel.add(msgPanel, BorderLayout.CENTER);
 		drawScrollPane = new JScrollPane(drawPanel);
-		codeScrollPane = new JScrollPane(backCodePanel);
-		msgScrollPane = new JScrollPane(backMsgPanel);
+		JScrollPane codeScrollPane = new JScrollPane(backCodePanel);
+		mainCodePanel = new JPanel();
+		mainCodePanel.setLayout(new BorderLayout());
+		JLabel codeLabel = new JLabel("算法CODE", JLabel.CENTER);
+		codeLabel.setForeground(Color.RED);
+		mainCodePanel.add(codeLabel, BorderLayout.NORTH);
+		mainCodePanel.add(codeScrollPane, BorderLayout.CENTER);
+		JScrollPane msgScrollPane = new JScrollPane(backMsgPanel);
+		mainMsgPanel = new JPanel();
+		mainMsgPanel.setLayout(new BorderLayout());
+		JLabel msgLabel = new JLabel("算法MESSAGE", JLabel.CENTER);
+		msgLabel.setForeground(Color.RED);
+		mainMsgPanel.add(msgLabel, BorderLayout.NORTH);
+		mainMsgPanel.add(msgScrollPane, BorderLayout.CENTER);
 	}
 	
 	public class ArrayControler{
 		private ArrayModel arrayModel = null;
-		private String tmpData = "A,B,C,D,E,F,G,H";
 		public ArrayControler(){
 			arrayModel = ((ArrayModel)model.getModel("ArrayModel", new Object[]{model}));
 		}
 		public void showArrayView(){
-			setData(tmpData);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "显示数组", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
+			dialog.setDataFormatContent("节点值,节点值,节点值....");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			setData(dialog.getData());
 			arrayModel.createArrayData(data, false);
 			model.setViewChanged();
 		}
 		
 		public void showArrayCreate(){
-			setData(tmpData);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "创建数组", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
+			dialog.setDataFormatContent("节点值,节点值,节点值....");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			setData(dialog.getData());
 			arrayModel.showArrayCreate(data);
 		}
 		
 		public void showArrayInsert(){
-			setData(tmpData);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "数组插入", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H;X;6");
+			dialog.setDataFormatContent("节点值,节点值..;插入值;位置");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			String[] datas = tmpData.split(";");
+			if(datas.length != 3) return;
+			setData(datas[0]);
 			arrayModel.createArrayData(data, true);
 			model.setViewChanged();
-			arrayModel.showArrayInsert("X", 8);
+			arrayModel.showArrayInsert(datas[1], Integer.parseInt(datas[2]));
 		}
 		
 		public void showArrayDelete(){
-			setData(tmpData);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "数组删除", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H;4");
+			dialog.setDataFormatContent("节点值,节点值..;删除位置");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			String[] datas = tmpData.split(";");
+			if(datas.length != 2) return;
+			setData(datas[0]);
 			arrayModel.createArrayData(data, false);
 			model.setViewChanged();
-			arrayModel.showArrayDelete(4);
+			arrayModel.showArrayDelete(Integer.parseInt(datas[1]));
 		}
 	}
 	
 	public class ListControler{
 		private ListModel listModel = null;
-		private String tmpData1 = "A,B,C,D,E,F,G,H";
-		private String tmpData2 = "A,D,E,F;B,C,X";
 		public ListControler(){
 			listModel = ((ListModel)model.getModel("ListModel", new Object[]{model}));
 		}
 		public void showListView(){
-			setData(tmpData1);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "显示链表", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
+			dialog.setDataFormatContent("节点值,节点值,节点值...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			setData(tmpData);
 			listModel.createListData(data);
 			model.setViewChanged();
 		}
 		
 		public void showListCreate(){
-			setData(tmpData1);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "创建链表", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
+			dialog.setDataFormatContent("节点值,节点值,节点值...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			setData(tmpData);
 			listModel.showListCreate(data);
 		}
 		
 		public void showListInsert(){
-			setData(tmpData1);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "链表插入", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H;X;6");
+			dialog.setDataFormatContent("节点值,节点值..;插入值;位置");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			String[] datas = tmpData.split(";");
+			if(datas.length != 3) return;
+			setData(datas[0]);
 			listModel.createListData(data);
 			model.setViewChanged();
-			listModel.showListInsert("X", 9);
+			listModel.showListInsert(datas[1], Integer.parseInt(datas[2]));
 		}
 		
 		public void showListDelete(){
-			setData(tmpData1);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "链表删除", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,B,C,D,E,F,G,H;6");
+			dialog.setDataFormatContent("节点值,节点值..;删除位置");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			String[] datas = tmpData.split(";");
+			if(datas.length != 2) return;
+			setData(datas[0]);
 			listModel.createListData(data);
 			model.setViewChanged();
-			listModel.showListDelete(5);
+			listModel.showListDelete(Integer.parseInt(datas[1]));
 		}
 		
 		public void showListMergeForThree(){
-			setData(tmpData2);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "链表合并", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,F,G,I;B,C,D,X");
+			dialog.setDataFormatContent("链表1;链表2");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			setData(tmpData);
 			listModel.showListMergeForThree(data);
 			model.setViewChanged();
 			listModel.beginListMergeForThree();
 		}
 		
 		public void showListMergeForOne(){
-			setData(tmpData2);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "链表合并", true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A,F,G,I;B,C,D,X");
+			dialog.setDataFormatContent("链表1;链表2");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			String tmpData = dialog.getData();
+			setData(tmpData);
 			listModel.showListMergeForOne(data);
 		}
 	}
 	
 	public class BTreeControler{
 		private BTreeModel bTreeModel = null;
-		private String tmpData = "A B C K ? ? M D ? ? Z ? ? X E ? ? F ? ? ?";
+		
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("A B C K ? ? M D ? ? Z ? ? X E ? ? F ? ? ?");
+			dialog.setDataFormatContent("二叉树先序遍历('?'表示空节点)");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
+		
 		public void showBTreeView(){
-			setData(tmpData);
+			setData(initDialog("二叉树显示"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.createBTreeData(data);
 			model.setViewChanged();
 		}
 		
 		public void showPreCreateBTree(){
-			setData(tmpData);
+			setData(initDialog("二叉树先序创建"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPreCreateBTree(data);
 		}
 		
 		public void showInorCreateBTree(){
-			setData(tmpData);
+			setData(initDialog("二叉树中序创建"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showInorCreateBTree(data);
 		}
 		
 		public void showPostCreateBTree(){
-			setData(tmpData);
+			setData(initDialog("二叉树后序创建"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPostCreateBTree(data);
 		}
 		
 		public void showPreData(){
-			setData(tmpData);
+			setData(initDialog("二叉树先序遍历"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPreData(data);
 		}
 		
 		public void showInorData(){
-			setData(tmpData);
+			setData(initDialog("二叉树中序遍历"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showInorData(data);
 		}
 		
 		public void showPostData(){
-			setData(tmpData);
+			setData(initDialog("二叉树后序遍历"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPostData(data);
 		}
 		
 		public void showBTreeToForest(){
-			setData(tmpData);
+			setData(initDialog("二叉树转化为森林"));
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showBTreeToForest(data);
 		}
@@ -228,18 +319,22 @@ public class DrawControler {
 	
 	public class GraphicControler{
 		private GraphicModel graphicModel = null;
-		private String tmpData = "2 1 4,2 3 5,3 4 6,2 4 7,4 5 8,5 6 9,6 7 2,2 6 3,6 2 4,6 2 6,7 8 9,10 11 12,1 2 5,1 2 6,7 8 5,7 8 8,5 7 5,7 5 6,7 5 8";
+		private String tmpData = "";
 		private boolean isDirected = false, isWeighted = false;
 		
-		public void setDirected(boolean isDirected) {
-			this.isDirected = isDirected;
-		}
-		public void setWeighted(boolean isWeighted) {
-			this.isWeighted = isWeighted;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_GRAPHIC);
+			dialog.setDataDemoContent("2 1 4,2 3 5,3 4 6,2 4 7,4 5 8,5 6 9,6 7 2,2 6 3,6 2 4,6 2 6,7 8 9,10 11 12,1 2 5,1 2 6,7 8 5,7 8 8,5 7 5,7 5 6,7 5 8");
+			dialog.setDataFormatContent("节点 节点 (权值),节点 节点 (权值)...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.isDirected = dialog.getIsDirected();
+			this.isWeighted = dialog.getIsWeighted();
+			return dialog.getData();
 		}
 		
 		public void showGraphicView(){
-			setData(tmpData);
+			setData(initDialog("图的创建"));
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.createGraphicData(data);
 			model.setViewChanged();
@@ -266,8 +361,17 @@ public class DrawControler {
 		public void setIsDirected(boolean isDirected) {
 			this.isDirected = isDirected;
 		}
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_GRAPHIC);
+			dialog.setDataDemoContent("4 7;1 2;4 2;4 1;1 3;3 1;3 4;4 3");
+			dialog.setDataFormatContent("节点 节点,节点 节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.isDirected = dialog.getIsDirected();
+			return dialog.getData();
+		}
 		public void showCrossListView(){
-			setData(tmpData);
+			setData(initDialog("十字链表显示"));
 			crossListModel = (CrossListModel) model.getModel("CrossListModel", new Object[]{model, isDirected});
 			crossListModel.createCrossListData(data);
 			model.setViewChanged();
@@ -276,16 +380,22 @@ public class DrawControler {
 	
 	public class ForestControler{
 		private ForestModel forestModel = null;
-		private String tmpData = "1 2;1 3;1 4;3 8;3 9;5 6;5 7;7 10;7 11;9 12;9 13;9 14;11 15;11 16;11 17;11 18";
 		public void showFroestCreataData(){
-			setData(tmpData);
+			setData(initDialog("森林创建"));
 			forestModel = (ForestModel) model.getModel("ForestModel", new Object[]{model});
 			forestModel.showFroestCreataData(data);
 			model.setViewChanged();
 		}
-		
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_GRAPHIC);
+			dialog.setDataDemoContent("1 2;1 3;1 4;3 8;3 9;5 6;5 7;7 10;7 11;9 12;9 13;9 14;11 15;11 16;11 17;11 18");
+			dialog.setDataFormatContent("节点 节点;节点 节点;...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
 		public void showForestToBTree(){
-			setData(tmpData);
+			setData(initDialog("森林转二叉树"));
 			forestModel = (ForestModel) model.getModel("ForestModel", new Object[]{model});
 			forestModel.showForestToBTree(data);
 		}
@@ -555,6 +665,7 @@ public class DrawControler {
 		//通过PanelControler 来管理 DrawControler
 		PanelControler.initControler(new DrawControler(drawPanel, model));
 		MainFrame mainFrame = new MainFrame("数据结构算法模拟系统");
+		PanelControler.mainFrame = mainFrame;
 		WelcomeWindow welcome = new WelcomeWindow("image/huaqiangu.jpg", mainFrame, 2000);
 	}
 
