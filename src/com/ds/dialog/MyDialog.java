@@ -11,6 +11,9 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -34,6 +37,10 @@ public class MyDialog extends JDialog {
 	private JComboBox typeBox = new JComboBox();
 	//图的权值选择
 	private JComboBox weightBox = new JComboBox();
+	//步长Filed
+	private JTextField stepFiled = new JTextField(15);
+	//步长数组
+	private int[] dk = null;
 	//如果是图，是否为有向图
 	private boolean isDirected;
 	//如果是图，边是否有权值
@@ -46,6 +53,16 @@ public class MyDialog extends JDialog {
 	private boolean qFirstOrSecond;
 	//如果是排序，排序是基数排序，lsd（1）， lsd(2), msd;
 	private int rOneOfThree;
+	//表达式计算， 堆栈或者是二叉树
+	private int formulaShowWay = 1;
+	
+	public int getFormulaShowWay(){
+		return formulaShowWay;
+	}
+	
+	public int[] getSteps(){
+		return dk;
+	}
 	
 	public boolean getIsWeighted(){
 		return isWeighted;
@@ -81,6 +98,7 @@ public class MyDialog extends JDialog {
 	public static final int SORT_OTHER_TYPE = 0;
 	public static final int SORT_QUICK_TYPE = 1;
 	public static final int SORT_RADIX_TYPE = 2;
+	public static final int SORT_SHELL_TYPE = 3;//希尔排序，需要制定步长
 	
 	private int sortType = SORT_OTHER_TYPE;
 	public void setSortType(int sortType){
@@ -95,32 +113,50 @@ public class MyDialog extends JDialog {
 	public static final int MODEL_TYPE_OTHER = 0;
 	public static final int MODEL_TYPE_SORT = 1;
 	public static final int MODEL_TYPE_GRAPHIC = 2;
+	public static final int MODEL_TYPE_TREE = 3;//线段树或者是树状数组
+	public static final int MODEL_TYPE_FORMULA = 4;//表达式的计算
 	
 	private JPanel selectPane;
 	
 	private void initSortType(){
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		selectPane.add(rightPanel);
+		JLabel weightLable = null;
 		if(sortType == SORT_QUICK_TYPE){
-			JPanel rightPanel = new JPanel();
-			rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			selectPane.add(rightPanel);
-			JLabel weightLable = new JLabel("方式:");
-			weightLable.setFont(myFont);
+			weightLable = new JLabel("方式:");
 			weightBox.addItem("两指针");
 			weightBox.addItem("一指针");
 			rightPanel.add(weightLable);
 			rightPanel.add(weightBox);
 		} else if(sortType == SORT_RADIX_TYPE){
-			JPanel rightPanel = new JPanel();
-			rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			selectPane.add(rightPanel);
-			JLabel weightLable = new JLabel("方式:");
-			weightLable.setFont(myFont);
+			weightLable = new JLabel("方式:");
 			weightBox.addItem("LSD(1)");
 			weightBox.addItem("LSD(2)");
 			weightBox.addItem("MSD");
 			rightPanel.add(weightLable);
 			rightPanel.add(weightBox);
+		} else if(sortType == SORT_SHELL_TYPE){
+			weightLable = new JLabel("步长:");
+			rightPanel.add(weightLable);
+			final String STEP_DEMO = "5 3 1";
+			stepFiled.setText(STEP_DEMO);
+			stepFiled.setToolTipText("最后步长一定为1");
+			stepFiled.addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					if("".equals(stepFiled.getText()))
+						stepFiled.setText(STEP_DEMO);
+				}
+				@Override
+				public void focusGained(FocusEvent e) {
+					if(STEP_DEMO.equals(stepFiled.getText()))
+						stepFiled.setText("");
+				}
+			});
+			rightPanel.add(stepFiled);
 		}
+		weightLable.setFont(myFont);
 	}
 	/**
 	 * @param owner
@@ -227,23 +263,32 @@ public class MyDialog extends JDialog {
 			rightPanel.add(weightBox);
 			
 			add(selectPane);
-		} else if(modelType == MODEL_TYPE_SORT){
+		} else if(modelType != MODEL_TYPE_OTHER){
 			selectPane = new JPanel();
 			GridLayout selectLayout = new GridLayout(1, 2);
 			selectPane.setLayout(selectLayout);
 			JPanel leftPanel = new JPanel();
 			leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
 			selectPane.add(leftPanel);
-			JLabel typeLable = new JLabel("排序:");
+			JLabel typeLable = null;
+			if(modelType == MODEL_TYPE_SORT){
+				typeLable = new JLabel("排序:");
+				typeBox.addItem("由小到大");
+				typeBox.addItem("由大到小");
+			} else if(modelType == MODEL_TYPE_TREE) {
+				typeLable = new JLabel("最值:");
+				typeBox.addItem("最大值");
+				typeBox.addItem("最小值");
+			} else if(modelType == MODEL_TYPE_FORMULA){
+				typeLable = new JLabel("方式:");
+				typeBox.addItem("堆栈");
+				typeBox.addItem("二叉树");
+			}
 			typeLable.setFont(myFont);
-			typeBox.addItem("由小到大");
-			typeBox.addItem("由大到小");
 			leftPanel.add(typeLable);
 			leftPanel.add(typeBox);
-			
 			add(selectPane);
-		}
-		
+		}  
 		//添加确定按钮
 		JPanel btnPanel = new JPanel();
 		btnPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -263,25 +308,35 @@ public class MyDialog extends JDialog {
 						isWeighted = false;
 					else
 						isWeighted = true;
-				} else if(modelType == MODEL_TYPE_SORT){
-					if(sortType == SORT_QUICK_TYPE){
-						int selectIndex = typeBox.getSelectedIndex();
-						if(selectIndex == 0)
-							minOrMax = true;
-						else 
-							minOrMax = false;
+				} else if(modelType == MODEL_TYPE_SORT || modelType == MODEL_TYPE_TREE){
+					int selectIndex = typeBox.getSelectedIndex();
+					if(selectIndex == 0)
+						minOrMax = true;
+					else 
+						minOrMax = false;
 						
-						if(sortType == SORT_QUICK_TYPE) {
-							selectIndex = weightBox.getSelectedIndex();
-							if(selectIndex == 0)
-								qFirstOrSecond = true;
-							else
-								qFirstOrSecond = false;
-						} else if(sortType == SORT_RADIX_TYPE){
-							selectIndex = weightBox.getSelectedIndex();
-							rOneOfThree = selectIndex;
+					if(sortType == SORT_QUICK_TYPE) {
+						selectIndex = weightBox.getSelectedIndex();
+						if(selectIndex == 0)
+							qFirstOrSecond = true;
+						else
+							qFirstOrSecond = false;
+					} else if(sortType == SORT_RADIX_TYPE){
+						selectIndex = weightBox.getSelectedIndex();
+						rOneOfThree = selectIndex;
+					} else if(sortType == SORT_SHELL_TYPE) {
+						String[] steps = stepFiled.getText().split(" ");
+						dk = new int[steps.length];
+						for(int i=0; i < dk.length; ++i){
+							try{
+								dk[i] = Integer.parseInt(steps[i]);
+							} catch(Exception ex){
+								dk[i] = 1;
+							}
 						}
 					}
+				} else if(modelType == MODEL_TYPE_FORMULA){
+					formulaShowWay = typeBox.getSelectedIndex()+1;
 				}
 				
 				data = dataFiled.getText();

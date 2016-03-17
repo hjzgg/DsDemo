@@ -31,6 +31,12 @@ public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 		weight = null;
 	}
 	
+	public void setWeightAtLineEnd(Point ptOrg){
+		weightInLinePos = 1;
+		LineSegments = 1;
+		this.ptOrg = ptOrg;
+	}
+	
 	public void setDefaultLine(Point ptOrg){
 		weightInLinePos = 1;
 		LineSegments = 2;
@@ -49,7 +55,7 @@ public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 			g2.drawLine(x1, y1, x2, y2);
 		//画边的权值
 		if(weight != null){
-			g2.setFont(new Font("华文行楷", Font.BOLD, 20));
+			g2.setFont(new Font("华文行楷", Font.BOLD, 18));
 			FontMetrics fontMetrics = g2.getFontMetrics();
 			int wordH = fontMetrics.getLeading()-fontMetrics.getAscent();
 			int wordW = fontMetrics.stringWidth(weight);

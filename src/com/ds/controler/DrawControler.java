@@ -387,7 +387,7 @@ public class DrawControler {
 			model.setViewChanged();
 		}
 		private String initDialog(String title){
-			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_GRAPHIC);
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
 			dialog.setDataDemoContent("1 2;1 3;1 4;3 8;3 9;5 6;5 7;7 10;7 11;9 12;9 13;9 14;11 15;11 16;11 17;11 18");
 			dialog.setDataFormatContent("节点 节点;节点 节点;...");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -403,13 +403,23 @@ public class DrawControler {
 	
 	public class SegmentTreeControler{
 		private SegmentTreeModel segmentTreeModel = null;
-		private String tmpData = "2 3 5 4 6 1 5 10 2 3 4 5";
 		private boolean minOrMax = false;
 		public void setMinOrMax(boolean minOrMax){
 			this.minOrMax = minOrMax;
 		}
+		
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_TREE);
+			dialog.setDataDemoContent("2 3 5 4 6 1 5 10 2 3 4 5");
+			dialog.setDataFormatContent("节点 节点;节点 节点;...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
+		}
+		
 		public void showSegmentTreeView(){
-			setData(tmpData);
+			setData(initDialog("线段树显示"));
 			segmentTreeModel = (SegmentTreeModel) model.getModel("SegmentTreeModel", new Object[]{model, minOrMax});
 			segmentTreeModel.createSegmentTreeData(data);
 			model.setViewChanged();
@@ -419,8 +429,16 @@ public class DrawControler {
 	public class BinaryIndexedTreeControler{
 		private BinaryIndexedTreeModel binaryIndexedTreeModel = null;
 		private String tmpData = "2 3 5 4 6 1 5 10 2 3 4 5";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("2 3 5 4 6 1 5 10 2 3 4 5");
+			dialog.setDataFormatContent("节点 节点;节点 节点;...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
 		public void showBinaryIndexedTreeView(){
-			setData(tmpData);
+			setData(initDialog("树状数组展示"));
 			binaryIndexedTreeModel = ((BinaryIndexedTreeModel)model.getModel("BinaryIndexedTreeModel", new Object[]{model}));
 			binaryIndexedTreeModel.createBinaryIndexedTreeData(data);
 			model.setViewChanged();
@@ -429,24 +447,31 @@ public class DrawControler {
 	
 	public class StringControler{
 		private StringModel stringModel = null;
-		private String tmpData = "acabaabcaabaabcac;abaabcac";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("acabaabcaabaabcac;abaabcac");
+			dialog.setDataFormatContent("原串;模式串");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
 		public StringControler(){
 			stringModel = (StringModel) model.getModel("StringModel", new Object[]{model});
 		}
 		public void BF(){
-			setData(tmpData);
+			setData(initDialog("字符串BF匹配算法"));
 			String[] datas = data.split(";");
 			stringModel.BF(datas[0], datas[1]);
 		}
 		
 		public void KMP_NEXT(){
-			setData(tmpData);
+			setData(initDialog("字符串KMP_NEXT算法"));
 			String[] datas = data.split(";");
 			stringModel.KMP_NEXTOrNEXTVAL(datas[0], datas[1], true);
 		}
 		
 		public void KMP_NEXTVAL(){
-			setData(tmpData);
+			setData(initDialog("字符串KMP_NEXTVAL算法"));
 			String[] datas = data.split(";");
 			stringModel.KMP_NEXTOrNEXTVAL(datas[0], datas[1], false);
 		}
@@ -454,13 +479,18 @@ public class DrawControler {
 	
 	public class SelectiveSortControler{
 		private SelectiveSortModel selectiveSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
 		public void selectiveSort(){
-			setData(tmpData);
+			setData(initDialog("选择排序模拟"));
 			selectiveSortModel = (SelectiveSortModel) model.getModel("SelectiveSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			selectiveSortModel.selectiveSort(data, minOrMax);
@@ -469,13 +499,18 @@ public class DrawControler {
 	
 	public class SampleInsertSortControler{
 		private SampleInsertSortModel sampleInsertSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
-		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
+		private boolean minOrMax = false;
 		public void insertSort(){
-			setData(tmpData);
+			setData(initDialog("简单插入排序模拟"));
 			sampleInsertSortModel = (SampleInsertSortModel) model.getModel("SampleInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			sampleInsertSortModel.insertSort(data, minOrMax);
@@ -484,13 +519,18 @@ public class DrawControler {
 	
 	public class BinaryInsertSortControler{
 		private BinaryInsertSortModel binaryInsertSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
 		public void binaryInsertSort(){
-			setData(tmpData);
+			setData(initDialog("二分插入排序模拟"));
 			binaryInsertSortModel = (BinaryInsertSortModel) model.getModel("BinaryInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			binaryInsertSortModel.binaryInsertSort(data, minOrMax);
@@ -499,13 +539,18 @@ public class DrawControler {
 	
 	public class BubbleSortControler{
 		private BubbleSortModel bubbleSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
 		public void bubbleSort(){
-			setData(tmpData);
+			setData(initDialog("起泡排序模拟"));
 			bubbleSortModel = (BubbleSortModel) model.getModel("BubbleSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			bubbleSortModel.bubbleSort(data, minOrMax);
@@ -514,18 +559,23 @@ public class DrawControler {
 	
 	public class QuickSortControler{
 		private QuickSortModel quickSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
 		private boolean firstOrSecond = false;
 		
-		public void setFristOrSecond(boolean firstOrSecond){
-			this.firstOrSecond = firstOrSecond;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setSortType(MyDialog.SORT_QUICK_TYPE);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			this.firstOrSecond = dialog.isqFirstOrSecond();
+			return dialog.getData();
 		}
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
-		}
+		 
 		public void quickSort(){
-			setData(tmpData);
+			setData(initDialog("快速排序模拟"));
 			//快排的方式1 或者 方式2
 			quickSortModel = (QuickSortModel) model.getModel("QuickSortModel", new Object[]{model, firstOrSecond});
 			//从小到大或者从大到小排序
@@ -535,13 +585,18 @@ public class DrawControler {
 	
 	public class MergeSortControler{
 		private MergeSortModel mergeSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
 		public void mergeSort(){
-			setData(tmpData);
+			setData(initDialog("归并排序模拟"));
 			mergeSortModel = (MergeSortModel) model.getModel("MergeSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			mergeSortModel.mergeSort(data, minOrMax);
@@ -550,13 +605,18 @@ public class DrawControler {
 	
 	public class HeapSortControler{
 		private HeapSortModel heapSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			return dialog.getData();
 		}
 		public void heapSort(){
-			setData(tmpData);
+			setData(initDialog("堆排序模拟"));
 			heapSortModel = (HeapSortModel) model.getModel("HeapSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			heapSortModel.heapSort(data, minOrMax);
@@ -565,19 +625,26 @@ public class DrawControler {
 	
 	public class ShellInsertSortControler{
 		private ShellInsertSortModel shellInsertSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
 		private int[] dk = {5, 3, 1};
 		public void setDK(int[] dk){
 			this.dk = dk;
 		}
 		
 		private boolean minOrMax = false;
-		public void setMinOrMax(boolean minOrMax){
-			this.minOrMax = minOrMax;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setSortType(MyDialog.SORT_SHELL_TYPE);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.minOrMax = dialog.isMinOrMax();
+			this.dk = dialog.getSteps();
+			return dialog.getData();
 		}
 		
 		public void insertSort(){
-			setData(tmpData);
+			setData(initDialog("希尔排序"));
 			shellInsertSortModel = (ShellInsertSortModel) model.getModel("ShellInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			shellInsertSortModel.insertSort(data, minOrMax, dk);
@@ -586,18 +653,30 @@ public class DrawControler {
 	
 	public class RadixSortControler{
 		private RadixSortModel radixSortModel = null;
-		private String tmpData = "1,5,3,45,4,6,9,4,3,2,23";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_SORT);
+			dialog.setSortType(MyDialog.SORT_RADIX_TYPE);
+			dialog.setDataDemoContent("1,5,3,45,4,6,9,4,3,2,23");
+			dialog.setDataFormatContent("节点,节点,节点...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			int way = dialog.getrOneOfThree();
+			if(way == 0){
+				lsdOrMsd = true;
+				oneOrTwo = true;
+			} else if(way == 1){
+				lsdOrMsd = true;
+				oneOrTwo = false;
+			} else if(way == 2){
+				lsdOrMsd = false;
+			}
+			return dialog.getData();
+		}
 		private boolean lsdOrMsd = false;
-		public void setLsdOrMsd(boolean lsdOrMsd){
-			this.lsdOrMsd = lsdOrMsd;
-		}
-		
 		private boolean oneOrTwo = false;
-		public void setOneOrTwo(boolean oneOrTwo){
-			this.oneOrTwo = oneOrTwo;
-		}
+		
 		public void radixSort(){
-			setData(tmpData);
+			setData(initDialog("基数排序模拟"));
 			//LSD或者是MSD
 			radixSortModel = (RadixSortModel) model.getModel("RadixSortModel", new Object[]{model, lsdOrMsd});
 			//从小到大或者从大到小排序
@@ -608,9 +687,16 @@ public class DrawControler {
 	
 	public class UnionFindSetControler{
 		private UnionFindSetModel unionFindSetModel = null;
-		private String tmpData = "1 2 3 4 5 6 7 8;1 2,2 5,6 7,7 2,6 8";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("1 2 3 4 5 6 7 8;1 2,2 5,6 7,7 2,6 8");
+			dialog.setDataFormatContent("节点,节点,节点...;附属关系");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
 		public void unionFindSet(){
-			setData(tmpData);
+			setData(initDialog("并查集模拟"));
 			unionFindSetModel = (UnionFindSetModel) model.getModel("UnionFindSetModel", new Object[]{model});
 			unionFindSetModel.unionFindSet(data);
 		}
@@ -618,19 +704,23 @@ public class DrawControler {
 	
 	public class FormulaControler{
 		private FormulaModel formulaModel = null;
-		private String tmpData = "(2+4)+((2)+(2+(0))-(3))";
 		public FormulaControler(){
 			formulaModel = (FormulaModel) model.getModel("FormulaModel", new Object[]{model});
 		}
-		
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_FORMULA);
+			dialog.setDataDemoContent("(2+4)+((2)+(2+(0))-(3))");
+			dialog.setDataFormatContent("合法表达式");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			this.showWay = dialog.getFormulaShowWay();
+			return dialog.getData();
+		}
 		public static final int FORMULA_TREE = 1;
 		public static final int FORMULA_STACK = 2;
 		private int showWay = 1;
-		public void setShowWay(int way){
-			this.showWay = way;
-		}
 		public void formula(){
-			setData(tmpData);
+			setData(initDialog("表达式计算模拟"));
 			if(showWay == 1)
 				formulaTree();
 			else if(showWay == 2)
@@ -649,12 +739,20 @@ public class DrawControler {
 	
 	public class HuffmanTreeControler{
 		private HuffmanTreeModel huffmanTreeModel = null;
-		private String tmpData = "abcde";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("abcde");
+			dialog.setDataFormatContent("编码字符串");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
+		
 		public HuffmanTreeControler(){
 			huffmanTreeModel = (HuffmanTreeModel) model.getModel("HuffmanTreeModel", new Object[]{model});
 		}
 		public void huffmanTree(){
-			setData(tmpData);
+			setData(initDialog("哈弗曼编码模拟"));
 			huffmanTreeModel.huffmanTree(data);
 		}
 	}

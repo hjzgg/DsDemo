@@ -1,5 +1,6 @@
 package com.ds.model;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Map;
@@ -21,9 +22,19 @@ public class GraphicModel{
 		ArrayList<Shape> shapeList = model.getShapeList();
 		String[] edges = data.split(",");
 		Map<String, GraphicNode> mp = new TreeMap<String, GraphicNode>();
+		//对自环弧进行处理
+		Map<String, Integer> selfMp = new TreeMap<String, Integer>();
+		//
 		//可以通过mp.size()获得图中一共有多少个结点
 		for(String edge : edges){
 			String[] nodes = edge.split(" ");
+			if(nodes[0].equals(nodes[1])){
+				if(!selfMp.containsKey(nodes[0]))
+					selfMp.put(nodes[0], 1);
+				else
+					selfMp.put(nodes[0], selfMp.get(nodes[0])+1);
+				continue;
+			}
 			if(!mp.containsKey(nodes[0])){
 				GraphicNode newNode = new GraphicNode();
 				newNode.content = nodes[0];
@@ -123,6 +134,25 @@ public class GraphicModel{
         			offDistMap.put((DsLine)((DsLine)shape).clone(), -lineCnt/2*ShapeSize.GraphicModel.LINES_DIST);
         			designLinePos(offDistMap, (DsLine) shape, lineOrgPt);
         		}
+        	}
+        }
+        
+        //绘制自环弧
+        for(String node : selfMp.keySet()){
+        	int cntEdge = selfMp.get(node);//计算这个个节点一共有多少个自弧
+        	int offDistY = 20;
+        	while(cntEdge -- > 0){
+        		DsCircle shape = mp.get(node).shape;
+        		DsLine leftL = new DsLine(shape.lx, shape.ly+shape.lh/2, shape.lx+shape.lw/2, shape.ly-offDistY, false);
+        		leftL.color = Color.CYAN;
+        		shapeList.add(0, leftL);
+        		//权值添加到leftL的右上端
+        		leftL.weight = "55";
+        		leftL.setWeightAtLineEnd(new Point(leftL.x1, leftL.y1));
+        		DsLine leftR = new DsLine(shape.lx+shape.lw/2, shape.ly-offDistY, shape.lx+shape.lw, shape.ly+shape.lh/2, isDirected);
+        		leftR.color = Color.CYAN;
+        		shapeList.add(0, leftR);
+        		offDistY += 15;
         	}
         }
 	}
