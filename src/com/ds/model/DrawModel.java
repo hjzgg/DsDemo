@@ -1,9 +1,11 @@
 package com.ds.model;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.dnd.DragSourceListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
@@ -12,6 +14,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import com.ds.panel.DrawPanel;
@@ -37,6 +40,11 @@ public class DrawModel extends Observable{
 	
 	public void setViewChanged(){
 		setChanged();
+		//得到该面板
+		Container obj = observerPanel.getParent().getParent();
+		if(obj instanceof JScrollPane){
+			((JScrollPane) obj).revalidate();
+		}
 		notifyObservers();
 	}
 	
@@ -175,6 +183,8 @@ class GraphicEdge{
 	public String weight;
 	public GraphicNode fromNode;
 	public GraphicNode toNode;
+	//两个节点之间的边 由一个DsLine确定，或者两个DsLine确定（自环弧）
+	public List<DsLine> lineList = new ArrayList<DsLine>();
 	public GraphicEdge(){
 		weight = null;
 		fromNode = null;
@@ -182,7 +192,7 @@ class GraphicEdge{
 	}
 }
 
-class GraphicNode{
+class GraphicNode implements Comparable<GraphicNode>{
 	public ArrayList<GraphicEdge> neighbourEdges;
 	public String content;
 	public DsCircle shape;
@@ -190,6 +200,11 @@ class GraphicNode{
 		neighbourEdges = new ArrayList<GraphicEdge>();
 		content = null;
 		shape = null;
+	}
+	
+	@Override
+	public int compareTo(GraphicNode o) {
+		return content.compareTo(o.content);
 	}
 }
 

@@ -76,7 +76,7 @@ public class PanelControler {
 				//二叉树功能
 				{"二叉树显示", "先序创建", "中序创建", "后序创建", "先序遍历", "中序遍历", "后序遍历", "二叉树转化为森林", "哈夫曼树编码"},
 				//图功能
-				{"图的显示"},
+				{"图的显示", "广度遍历图", "深度遍历图", "迪杰斯特拉算法", "Prim算法", "Kruskal算法", "Floyd算法"},
 				//排序功能
 				{"选择排序", "简单插入排序", "二分插入排序", "冒泡排序", "快速排序", "归并排序", "推排序", "希尔排序", "基数排序"},
 				//并查集功能
@@ -121,7 +121,7 @@ public class PanelControler {
 				//二叉树功能
 				{"com.ds.controler.DrawControler$BTreeControler;showBTreeView", "com.ds.controler.DrawControler$BTreeControler;showPreCreateBTree", "com.ds.controler.DrawControler$BTreeControler;showInorCreateBTree", "com.ds.controler.DrawControler$BTreeControler;showPostCreateBTree", "com.ds.controler.DrawControler$BTreeControler;showPreData", "com.ds.controler.DrawControler$BTreeControler;showInorData", "com.ds.controler.DrawControler$BTreeControler;showPostData", "com.ds.controler.DrawControler$BTreeControler;showBTreeToForest", "com.ds.controler.DrawControler$HuffmanTreeControler;huffmanTree"},
 				//图功能
-				{"com.ds.controler.DrawControler$GraphicControler;showGraphicView"},
+				{"com.ds.controler.DrawControler$GraphicControler;showGraphicView", "com.ds.controler.DrawControler$GraphicControler;BFSGraphic", "com.ds.controler.DrawControler$GraphicControler;DFSGraphic", "com.ds.controler.DrawControler$GraphicControler;dijkstra", "com.ds.controler.DrawControler$GraphicControler;prim", "com.ds.controler.DrawControler$GraphicControler;kruskal", "com.ds.controler.DrawControler$GraphicControler;floyd"},
 				//排序功能
 				{"com.ds.controler.DrawControler$SelectiveSortControler;selectiveSort", "com.ds.controler.DrawControler$SampleInsertSortControler;insertSort", "com.ds.controler.DrawControler$BinaryInsertSortControler;binaryInsertSort", "com.ds.controler.DrawControler$BubbleSortControler;bubbleSort", "com.ds.controler.DrawControler$QuickSortControler;quickSort", "com.ds.controler.DrawControler$MergeSortControler;mergeSort", "com.ds.controler.DrawControler$HeapSortControler;heapSort", "com.ds.controler.DrawControler$ShellInsertSortControler;insertSort", "com.ds.controler.DrawControler$RadixSortControler;radixSort"},
 				//并查集功能
@@ -138,12 +138,12 @@ public class PanelControler {
 						nextPanel.put(SecondPanel.btnsMsg[i][j], thirdPanel);
 						btnMsgMapClassMsg.put(SecondPanel.btnsMsg[i][j], classMsg[i][j]);
 						//创建算法源码文件
-//						try {
-//							File file = new File("./algorithmCode/" + classMsg[i][j] + ".txt");
-//							file.createNewFile();
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
+						try {
+							File file = new File("./algorithmCode/" + classMsg[i][j] + ".txt");
+							file.createNewFile();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				thirdPanel.initPanel();
 			}

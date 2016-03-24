@@ -59,6 +59,9 @@ public class ShapeSize {
 		public static final int LEFT_MARGIN = 45;
 		public static final int TOP_MARGIN = 45;
 		public static final int LINES_DIST = 10;//边与边的距离
+		
+		public static final int SMALL_RECT_WIDTH = 35;
+		public static final int SMALL_RECT_HEIGHT = 35;
 	}
 	
 	//广义表

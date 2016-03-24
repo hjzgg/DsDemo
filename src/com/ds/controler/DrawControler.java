@@ -319,7 +319,6 @@ public class DrawControler {
 	
 	public class GraphicControler{
 		private GraphicModel graphicModel = null;
-		private String tmpData = "";
 		private boolean isDirected = false, isWeighted = false;
 		
 		private String initDialog(String title){
@@ -338,6 +337,42 @@ public class DrawControler {
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.createGraphicData(data);
 			model.setViewChanged();
+		}
+		
+		public void BFSGraphic(){
+			setData(initDialog("BFS遍历"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.BFSGraphic(data);
+		}
+		
+		public void DFSGraphic(){
+			setData(initDialog("DFS遍历"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.DFSGraphic(data);
+		}
+		
+		public void dijkstra(){
+			setData(initDialog("Dijkstra算法"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.dijkstra(data);
+		}
+		
+		public void prim(){
+			setData(initDialog("Prim算法"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.prim(data);
+		}
+		
+		public void kruskal(){
+			setData(initDialog("Kruskal算法"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.kruskal(data);
+		}
+		
+		public void floyd(){
+			setData(initDialog("Kruskal算法"));
+			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
+			graphicModel.floyd(data);
 		}
 	}
 	

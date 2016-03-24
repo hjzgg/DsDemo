@@ -143,7 +143,7 @@ public class RadixSortModel {
 				circleFly((DsSampleRect)bucketTip.get(0).clone(), bucketTip.toArray(new DsSampleRect[]{}));
 			
 			MyRunMoveRectsUp run = new MyRunMoveRectsUp(ShapeSize.RadixSortModel.TOP_MARGIN, bucket.size());
-			new Thread(run).start();
+			new Thread(run, "childThread"+i).start();
 			for(int j=bucket.size()-1; j >= 0; --j){
 				DsRect rect = bucket.get(j);
 				DsRect movingRect = (DsRect)rect.clone();
@@ -453,7 +453,7 @@ public class RadixSortModel {
 	 * @param ki	第几个关键字
 	 * @param msgRect 消息提示矩形
 	 */
-	private void msdRadixSort(ArrayList<SortNode> nodeList, int ld, int rd, int ki, DsRect msgRect){
+	private void msdRadixSort(ArrayList<SortNode> nodeList, int ld, int rd, int ki, DsRect msgRect, int threadIndex){
 		if(nodeList == null || ld >= rd || ld < nodeList.size() && ki > nodeList.get(ld).content.length()) return;
 		ArrayList<DsRect> bucket = new ArrayList<DsRect>();
 		for(int j=ld; j <= rd; ++j){
@@ -535,7 +535,7 @@ public class RadixSortModel {
 			circleFly((DsSampleRect)bucketTip.get(0).clone(), bucketTip.toArray(new DsSampleRect[]{}));
 		
 		MyRunMoveRectsUp run = new MyRunMoveRectsUp(ShapeSize.RadixSortModel.TOP_MARGIN, bucket.size());
-		new Thread(run).start();
+		new Thread(run, "childThread"+threadIndex).start();
 		for(int j=bucket.size()-1; j >= 0; --j){
 			DsRect rect = bucket.get(j);
 			DsRect movingRect = (DsRect)rect.clone();
@@ -560,9 +560,9 @@ public class RadixSortModel {
 		preCh = null;
 		for(Character ch : copyCnt.keySet()){
 			if(preCh == null)
-				msdRadixSort(nodeList, ld, ld+copyCnt.get(ch)-1, ki+1, msgRect);
+				msdRadixSort(nodeList, ld, ld+copyCnt.get(ch)-1, ki+1, msgRect, threadIndex+1);
 			else
-				msdRadixSort(nodeList, ld+copyCnt.get(preCh), ld+copyCnt.get(ch)-1, ki+1, msgRect);
+				msdRadixSort(nodeList, ld+copyCnt.get(preCh), ld+copyCnt.get(ch)-1, ki+1, msgRect, threadIndex+1);
 			preCh = ch;
 		}
 	}
@@ -615,7 +615,7 @@ public class RadixSortModel {
 					String rep = nodeList.get(i).content.replaceAll("(.+)", sb + "$1");
 					nodeList.get(i).content = nodeList.get(i).shape.content = rep.replaceAll("□*(.{" + maxLen + "})", "$1");
 				}
-			msdRadixSort(nodeList, 0, nodeList.size()-1, 1, msgRect);
+			msdRadixSort(nodeList, 0, nodeList.size()-1, 1, msgRect, 1);
 			for(int i=0; i < nodeList.size(); ++i){
 				nodeList.get(i).content = nodeList.get(i).shape.content = nodeList.get(i).content.replaceAll("□*(.+)", "$1");
 			}

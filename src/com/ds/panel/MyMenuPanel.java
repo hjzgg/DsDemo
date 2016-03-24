@@ -87,6 +87,19 @@ public class MyMenuPanel extends JPanel{
 					modelThread.start();
 				} else {
 					modelThread.suspend();
+					//暂停所有的子线程
+					ThreadGroup group = Thread.currentThread().getThreadGroup();
+					ThreadGroup topGroup;
+					while (group != null) {
+						topGroup = group;
+						Thread[] threads = new Thread[topGroup.activeCount()];
+						topGroup.enumerate(threads);
+						for(Thread thread : threads){
+							if(thread.getName().startsWith("childThread"))
+								thread.suspend();
+						}
+						group = group.getParent();
+					}
 					suspendBtn.setEnabled(false);
 					resumeBtn.setEnabled(true);
 				}
@@ -98,6 +111,19 @@ public class MyMenuPanel extends JPanel{
 			public void actionPerformed(ActionEvent e) {
 				resumeBtn.setEnabled(false);
 				suspendBtn.setEnabled(true);
+				//继续所有的子线程
+				ThreadGroup group = Thread.currentThread().getThreadGroup();
+				ThreadGroup topGroup;
+				while (group != null) {
+					topGroup = group;
+					Thread[] threads = new Thread[topGroup.activeCount()];
+					topGroup.enumerate(threads);
+					for(Thread thread : threads){
+						if(thread.getName().startsWith("childThread"))
+							thread.resume();
+					}
+					group = group.getParent();
+				}
 				modelThread.resume();
 			}
 		});
@@ -106,6 +132,20 @@ public class MyMenuPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				modelThread.stop();
+				//终止所有启动的子线程
+				ThreadGroup group = Thread.currentThread().getThreadGroup();
+				ThreadGroup topGroup;
+				while (group != null) {
+					topGroup = group;
+					Thread[] threads = new Thread[topGroup.activeCount()];
+					topGroup.enumerate(threads);
+					for(Thread thread : threads){
+						if(thread.getName().startsWith("childThread"))
+							thread.stop();
+					}
+					group = group.getParent();
+				}
+				//
 				modelThread = null;
 				suspendBtn.setText("开始");
 				suspendBtn.setEnabled(true);

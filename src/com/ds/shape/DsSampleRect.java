@@ -10,6 +10,7 @@ public class DsSampleRect extends DsRect implements Cloneable{
 	public void drawShape(Graphics g) {
 		g.setColor(color == null ? Color.RED : color);
 		g.fillRect(lx, ly, lw, lh);
+		if(content == null) return;
 		g.setFont(new Font("»ªÎÄÐÐ¿¬", Font.BOLD, fontSize < 0 ? 35 : fontSize));
 		FontMetrics fontMetrics = g.getFontMetrics();
 		int contentH = fontMetrics.getLeading()-fontMetrics.getAscent();
