@@ -2,9 +2,11 @@ package com.ds.model;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -26,13 +28,14 @@ import javax.swing.JViewport;
 import com.ds.model.CrossListModel.Edge;
 import com.ds.shape.DsCircle;
 import com.ds.shape.DsLine;
+import com.ds.shape.DsSampleCircle;
 import com.ds.shape.DsSampleRect;
 import com.ds.shape.Shape;
 import com.ds.size.ShapeSize;
 
 public class GraphicModel{
 	private DrawModel model;
-	private boolean isDicircleed;//是否为有向图
+	private boolean isDirected;//是否为有向图
 	private boolean isWeighted;//是否带权图
 	ArrayList<Shape> shapeList;
 	
@@ -131,27 +134,9 @@ public class GraphicModel{
         for(String nodeKey : mp.keySet()){//连边
         	GraphicNode curNode = mp.get(nodeKey);
         	shapeList.add(curNode.shape);
-        	int x11 = curNode.shape.lx+ShapeSize.GraphicModel.CIRCLE_WIDTH/2;
-        	int y11 = curNode.shape.ly+ShapeSize.GraphicModel.CIRCLE_HEIGHT/2;
         	for(GraphicEdge edge : curNode.neighbourEdges){
         		GraphicNode nextNode = edge.toNode;
-        		int x1 = x11;
-        		int y1 = y11;
-        		int x2 = nextNode.shape.lx+ShapeSize.GraphicModel.CIRCLE_WIDTH/2;
-	        	int y2 = nextNode.shape.ly+ShapeSize.GraphicModel.CIRCLE_HEIGHT/2;
-	        	//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
-				// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
-				double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
-				double sinx = (Math.abs(x2-x1))/L/2;//除以2，因为ShapeSize.TreeModel.CIRCLE_WIDTH是直径，我们要半径
-				double cosx = (Math.abs(y2-y1))/L/2;
-				int flag = x1 < x2 ? 1 : -1;
-				x1 = (int)(x1+ShapeSize.TreeModel.CIRCLE_WIDTH*sinx*flag);
-				x2 = (int)(x2-ShapeSize.TreeModel.CIRCLE_WIDTH*sinx*flag);
-				flag = y1 > y2 ? -1 : 1;
-				y1 = (int)(y1+ShapeSize.TreeModel.CIRCLE_WIDTH*cosx*flag);
-				y2 = (int)(y2-ShapeSize.TreeModel.CIRCLE_WIDTH*cosx*flag);
-				
-				DsLine shapeLine = new DsLine(x1, y1, x2, y2, isDicircleed);
+				DsLine shapeLine = createLine(curNode.shape, nextNode.shape);
 				if(isWeighted) shapeLine.weight = edge.weight;
 				shapeList.add(shapeLine);
 				edge.lineList.add(shapeLine);
@@ -189,12 +174,15 @@ public class GraphicModel{
         	}
         }
         
-        if(!isDicircleed){//无向图，GraphicEdge的数量变成2倍，但是DsLine的数量不变
+        if(!isDirected){//无向图，GraphicEdge的数量变成2倍，但是DsLine的数量不变
         	for(GraphicNode node : nodeList)
         		for(GraphicEdge edge : node.neighbourEdges){
+        			if(edge.isNewAdd) continue;
         			GraphicEdge newEdge = new GraphicEdge();
         			newEdge.fromNode = edge.toNode;
         			newEdge.toNode = edge.fromNode;
+        			newEdge.weight = edge.weight;
+        			newEdge.isNewAdd = true;
         			newEdge.lineList.addAll(edge.lineList);
         			edge.toNode.neighbourEdges.add(newEdge);
         		}
@@ -218,7 +206,7 @@ public class GraphicModel{
 	        		leftL.weight = newEdge.weight = selfW.get(node).get(cc);
 	        		leftL.setWeightAtLineEnd(new Point(leftL.x1, leftL.y1));
         		}
-        		DsLine leftR = new DsLine(shape.lx+shape.lw/2, shape.ly-offDistY, shape.lx+shape.lw, shape.ly+shape.lh/2, isDicircleed);
+        		DsLine leftR = new DsLine(shape.lx+shape.lw/2, shape.ly-offDistY, shape.lx+shape.lw, shape.ly+shape.lh/2, isDirected);
         		leftR.color = Color.CYAN;
         		shapeList.add(0, leftR);
         		newEdge.lineList.add(leftR);
@@ -228,6 +216,28 @@ public class GraphicModel{
         Collections.sort(nodeList);
         model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
 	}
+	
+	private DsLine createLine(DsCircle shapeOne, DsCircle shapeTwo){
+		int x1 = shapeOne.lx+ShapeSize.GraphicModel.CIRCLE_WIDTH/2;
+		int y1 = shapeOne.ly+ShapeSize.GraphicModel.CIRCLE_HEIGHT/2;
+		int x2 = shapeTwo.lx+ShapeSize.GraphicModel.CIRCLE_WIDTH/2;
+    	int y2 = shapeTwo.ly+ShapeSize.GraphicModel.CIRCLE_HEIGHT/2;
+    	//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
+		// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
+		double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
+		double sinx = (Math.abs(x2-x1))/L/2;//除以2，因为ShapeSize.TreeModel.CIRCLE_WIDTH是直径，我们要半径
+		double cosx = (Math.abs(y2-y1))/L/2;
+		int flag = x1 < x2 ? 1 : -1;
+		x1 = (int)(x1+ShapeSize.TreeModel.CIRCLE_WIDTH*sinx*flag);
+		x2 = (int)(x2-ShapeSize.TreeModel.CIRCLE_WIDTH*sinx*flag);
+		flag = y1 > y2 ? -1 : 1;
+		y1 = (int)(y1+ShapeSize.TreeModel.CIRCLE_WIDTH*cosx*flag);
+		y2 = (int)(y2-ShapeSize.TreeModel.CIRCLE_WIDTH*cosx*flag);
+		
+		DsLine shapeLine = new DsLine(x1, y1, x2, y2, isDirected);
+		return shapeLine;
+	}
+	
 	//结算两个节点之间每条边所在的平移之后位置
 	private void designLinePos(Map<DsLine, Integer> offDistMap, DsLine line, Map<DsLine, Point> lineOrgPt){
 		int off_dist = offDistMap.get(line);
@@ -490,6 +500,7 @@ public class GraphicModel{
 		int movey = y - (circle.y+circle.height/2);
 		hsb.setValue(hsb.getValue() + movex);
 		vsb.setValue(vsb.getValue() + movey);
+		scrollpaen.revalidate();
 	}
 	
 	private void delay(int time){
@@ -505,6 +516,39 @@ public class GraphicModel{
 		createGraphicData(data);
 		if(nodeList.size() == 0) return;
 		if(this.isWeighted == false) return;
+		//创建消息提示
+		DsSampleRect tipOneRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "黄线 : 距离更新");
+		DsSampleRect tipTwoRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN*2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "蓝靛 : 距离更新并找到距源最近节点");
+		tipOneRect.color = tipTwoRect.color = model.getObserverPanel().getBackground();
+		tipOneRect.fontSize = tipTwoRect.fontSize = 20;
+		shapeList.add(tipOneRect);
+		shapeList.add(tipTwoRect);
+		//创建三个节点，用来指示距离更新的演示
+		DsCircle circleV = new DsCircle(swidth, tipTwoRect.ly+tipTwoRect.lh*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleU = new DsCircle(swidth, circleV.ly+circleV.lh*4, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleR = new DsCircle(circleU.lx+circleU.lw*3, circleU.ly+circleU.lh*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, nodeList.get(0).content);
+		DsSampleRect compareRect = new DsSampleRect(circleR.lx, circleR.ly-circleR.lh*3, ShapeSize.GraphicModel.CIRCLE_WIDTH*4, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		compareRect.color = Color.CYAN;
+		shapeList.add(compareRect);
+		DsLine lineUV = createLine(circleU, circleV);
+		lineUV.weight = "∞";
+		lineUV.setDefaultLine(new Point(lineUV.x1+5, lineUV.y1));
+		shapeList.add(lineUV);
+		DsLine lineRU = createLine(circleR, circleU);
+		lineRU.weight = "∞";
+		lineRU.setDefaultLine(new Point(lineRU.x1+5, lineRU.y1));
+		shapeList.add(lineRU);
+		DsLine lineRV = createLine(circleR, circleV);
+		lineRV.weight = "∞";
+		lineRV.setDefaultLine(new Point(lineRV.x1+5, lineRV.y1));
+		shapeList.add(lineRV);
+		
+		circleR.color = Color.WHITE;
+		shapeList.add(circleR);
+		circleU.color = Color.GREEN;
+		shapeList.add(circleU);
+		shapeList.add(circleV);
+		swidth += tipTwoRect.lw + ShapeSize.GraphicModel.CIRCLE_WIDTH; 
 		//记录每个节点的索引
 		Map<GraphicNode, Integer> nodeIndex = new TreeMap<GraphicNode, Integer>();
 		//二维数组，直观的显示源点到各个点的最短距离
@@ -531,6 +575,8 @@ public class GraphicModel{
 		Map<GraphicNode, Integer> dist = new TreeMap<GraphicNode, Integer>();
 		//标识某个节点是否访问过
 		Set<GraphicNode> vis = new TreeSet<GraphicNode>();
+		//更新节点的时候，记录是被那一条边更新的
+		Map<GraphicNode, GraphicEdge> nodeToUpdateEdge = new TreeMap<GraphicNode, GraphicEdge>();
 		for(GraphicNode node : nodeList)
 			dist.put(node, Integer.MAX_VALUE);
 		GraphicNode root = nodeList.get(0);
@@ -550,7 +596,7 @@ public class GraphicModel{
 				DsSampleRect rect = new DsSampleRect(leftDist, topDist, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, nodesDist == Integer.MAX_VALUE ? "∞" : String.valueOf(nodesDist));
 				rect.color = Color.WHITE;
 				rect.fontSize = 20;
-				synchronized (ShapeSize.class) {shapeList.add(rect);}
+				synchronized (Shape.class) {shapeList.add(rect);}
 				arrDist.get(i).add(rect);
 				if(j == 0){
 					leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2;
@@ -562,7 +608,7 @@ public class GraphicModel{
 			DsSampleRect topRect = new DsSampleRect(ShapeSize.GraphicModel.LEFT_MARGIN, topDist, leftDist-ShapeSize.GraphicModel.LEFT_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, null);
 			DsSampleRect downRect = new DsSampleRect(ShapeSize.GraphicModel.LEFT_MARGIN, topDist+ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, leftDist-ShapeSize.GraphicModel.LEFT_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT-ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, null);
 			topRect.color = downRect.color = model.getObserverPanel().getBackground();
-			synchronized (ShapeSize.class) {
+			synchronized (Shape.class) {
 				shapeList.add(topRect);
 				shapeList.add(downRect);
 			}
@@ -577,7 +623,7 @@ public class GraphicModel{
 				}
 				delay(200);
 			}
-			synchronized (ShapeSize.class) {
+			synchronized (Shape.class) {
 				shapeList.remove(topRect);
 				shapeList.remove(downRect);
 			}
@@ -587,23 +633,90 @@ public class GraphicModel{
 			//新节点与旧节点之间唯一的一条边
 			GraphicEdge selectEdge = null;
 			for(GraphicEdge edge : root.neighbourEdges){
+				adjustView(model.getObserverPanel(), root.shape.lx, root.shape.ly);
 				GraphicNode to = edge.toNode;
 				int weight = Integer.parseInt(edge.lineList.get(0).weight);
+				
+				if(!vis.contains(to)) {
+					lineAppearAndDisAppear(edge.lineList.toArray(new DsLine[]{}));
+					//更新模拟
+					try {
+						Thread tv = null, tu = null;
+						DsSampleCircle cv = null, cu = null;
+						if(!circleV.content.equals(to.content)){
+							 cv = new DsSampleCircle(to.shape.lx, to.shape.ly, to.shape.lw, to.shape.lh, to.content);
+							 cv.setTransparent(true);
+							 synchronized (Shape.class) { shapeList.add(cv); }
+							 tv = new Thread(new NumberMoving(cv, circleV), "childThread_circleV");
+							 tv.start();
+						}
+						
+						if(!circleU.content.equals(root.content)){
+							cu = new DsSampleCircle(root.shape.lx, root.shape.ly, root.shape.lw, root.shape.lh, root.content);
+							cu.setTransparent(true);
+							synchronized (Shape.class) { shapeList.add(cu); }
+							tu = new Thread(new NumberMoving(cu, circleU), "childThread_circleU");
+							tu.start();
+						}
+						if(tv != null) tv.join();
+						if(tu != null) tu.join();
+						if(cv != null) synchronized (Shape.class) { shapeList.remove(cv); }
+						if(cu != null) synchronized (Shape.class) { shapeList.remove(cu); }
+						
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					lineUV.weight = String.valueOf(weight);
+					lineRU.weight = String.valueOf(dist.get(root));
+					lineRV.weight = dist.get(to) == Integer.MAX_VALUE ? "∞" : String.valueOf(dist.get(to));
+					lineAppearAndDisAppear(new DsLine[]{lineUV, lineRU, lineRV});
+					
+					compareRect.content = lineUV.weight + "+" + lineRU.weight + (dist.get(to) > weight + dist.get(root) ? " < " : " >= ") + lineRV.weight;
+					tipForUpdate(new DsSampleRect[]{compareRect});
+				}
+				
 				if(!vis.contains(to) && dist.get(to) > weight + dist.get(root)){
-					dist.put(to, dist.get(root) + weight);
 					for(DsLine line : edge.lineList)
 						line.color = Color.YELLOW;
-					
+					nodeToUpdateEdge.put(to, edge);
+					dist.put(to, dist.get(root) + weight);
+					//动态过度
+					DsSampleCircle numOne = new DsSampleCircle(lineUV.getContentPoint().x, lineUV.getContentPoint().y, ShapeSize.GraphicModel.CIRCLE_WIDTH/2, ShapeSize.GraphicModel.CIRCLE_HEIGHT/2, lineUV.weight);
+					numOne.fontSize = 25;
+					numOne.setTransparent(true);
+					DsSampleCircle numTwo = new DsSampleCircle(lineRU.getContentPoint().x, lineRU.getContentPoint().y, ShapeSize.GraphicModel.CIRCLE_WIDTH/2, ShapeSize.GraphicModel.CIRCLE_HEIGHT/2, lineRU.weight);
+					numTwo.fontSize = 25;
+					numTwo.setTransparent(true);
+					synchronized (Shape.class) {
+						shapeList.add(numOne);
+						shapeList.add(numTwo);
+					}
+					try {
+						Thread twu = new Thread(new NumberMoving(numOne, lineRV.getContentPoint().x, lineRV.getContentPoint().y));
+						Thread twv = new Thread(new NumberMoving(numTwo, lineRV.getContentPoint().x, lineRV.getContentPoint().y));
+						twu.start(); twv.start();
+						twu.join();
+						twv.join();
+						lineRV.weight = String.valueOf(dist.get(to));
+						lineAppearAndDisAppear(new DsLine[]{lineRV});
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					adjustView(model.getObserverPanel(), arrDist.get(0).get(0).lx, arrDist.get(0).get(0).ly);
 					tipForUpdate(new DsSampleRect[]{arrDist.get(0).get(0), arrDist.get(0).get(nodeIndex.get(to)), arrDist.get(i).get(nodeIndex.get(to))});
 					arrDist.get(i).get(nodeIndex.get(to)).content = String.valueOf(dist.get(to));
-				}
-				if(!vis.contains(to) && minDist > dist.get(to)){
-					newRoot = to;
-					minDist = dist.get(to);
-					selectEdge = edge;
+					model.setViewChanged();
+					delay(1000);
 				}
 			}
-			thread.stop();
+			for(GraphicNode oneNode : nodeList){
+				if(!vis.contains(oneNode) && minDist > dist.get(oneNode)){
+					newRoot = oneNode;
+					minDist = dist.get(oneNode);
+					selectEdge = nodeToUpdateEdge.get(oneNode);
+				}
+			}
 			
 			if(newRoot != null){
 				root.shape.color = Color.GREEN;
@@ -611,22 +724,123 @@ public class GraphicModel{
 				vis.add(root);
 				for(DsLine line : selectEdge.lineList)
 					line.color = Color.CYAN;
-			} else {
-				break;
-			}
+			} 
+			thread.stop();
 		}
 		
 		model.setViewChanged();
 	}
 	
-	//prim算法
-	public void prim(String data){
-		createGraphicData(data);
-		if(nodeList.size() == 0) return;
-		if(this.isWeighted == false) return;
+	private void lineAppearAndDisAppear(DsLine[] lines){
+		boolean flag = true;
+		for(int i=1; i<=4; ++i){
+			if(flag){
+				synchronized (Shape.class) {
+					shapeList.removeAll(Arrays.asList(lines));
+				}
+			} else {
+				synchronized (Shape.class) {
+					shapeList.addAll(Arrays.asList(lines));
+				}
+			}
+			flag = !flag;
+			delay(300);
+		}
+	}
+	
+	class NumberMoving implements Runnable{
+		private DsSampleCircle circle;
+		private DsCircle target = null;
+		private int tx, ty;
+		public NumberMoving(DsSampleCircle circle, DsCircle target){
+			this.circle = circle;
+			this.target = target;
+		}
+		public NumberMoving(DsSampleCircle circle, int tx, int ty){
+			this.circle = circle;
+			this.tx = tx;
+			this.ty = ty;
+		}
+		@Override
+		public void run() {
+			if(target != null) {
+				if(circle.lx < target.lx)
+					moveNumbers(circle, target.lx, DIR_RIGHT);
+				else 
+					moveNumbers(circle, target.lx, DIR_LEFT);
+				
+				if(circle.ly < target.ly)
+					moveNumbers(circle, target.ly, DIR_DOWN);
+				else 
+					moveNumbers(circle, target.ly, DIR_UP);
+				target.content = circle.content;
+			} else {
+				if(circle.lx < tx)
+					moveCircle(circle, tx, DIR_RIGHT);
+				else 
+					moveCircle(circle, tx, DIR_LEFT);
+				
+				if(circle.ly < ty)
+					moveCircle(circle, ty, DIR_DOWN);
+				else 
+					moveCircle(circle, ty, DIR_UP);
+				synchronized (Shape.class) {
+					shapeList.remove(circle);
+				}
+			}
+		}
+	}
+	
+	private void moveNumbers(DsSampleCircle circle, int pos, int dir){
+		final int offDistX = 20, offDistY = 10;
+		switch(dir){
+			case DIR_LEFT:
+				while(circle.lx > pos){
+					circle.lx -= offDistX;
+					if(circle.lx < pos)
+						circle.lx = pos;
+					model.setViewChanged();
+					delay(100);
+				}
+				break;
+			case DIR_RIGHT:
+				while(circle.lx < pos){
+					circle.lx += offDistX;
+					if(circle.lx > pos)
+						circle.lx = pos;
+					model.setViewChanged();
+					delay(100);
+				}
+				break;
+			case DIR_UP:
+				while(circle.ly > pos){
+					circle.ly -= offDistX;
+					if(circle.ly < pos)
+						circle.ly = pos;
+					model.setViewChanged();
+					delay(100);
+				}
+				break;
+			case DIR_DOWN:
+				while(circle.ly < pos){
+					circle.ly += offDistX;
+					if(circle.ly > pos)
+						circle.ly = pos;
+					model.setViewChanged();
+					delay(100);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	
+	//得到生成树的数据
+	private String firstPrim(){
+		StringBuilder content = new StringBuilder();
 		//源点到每一个节点的最短的距离
 		Map<GraphicNode, Integer> dist = new TreeMap<GraphicNode, Integer>();
-		//标识某个节点是否访问过
+		//标记节点是否被访问过
 		Set<GraphicNode> vis = new TreeSet<GraphicNode>();
 		for(GraphicNode node : nodeList)
 			dist.put(node, Integer.MAX_VALUE);
@@ -634,8 +848,6 @@ public class GraphicModel{
 		dist.put(root, 0);
 		vis.add(root);
 		for(int i=1; i < nodeList.size(); ++i){//更新 （n-1）次
-			Thread thread = new Thread(new RootRunning(root), "childThread" + i);
-			thread.start();
 			int minDist = Integer.MAX_VALUE;
 			//找到新的根节点
 			GraphicNode newRoot = null;
@@ -645,28 +857,377 @@ public class GraphicModel{
 				GraphicNode to = edge.toNode;
 				int weight = Integer.parseInt(edge.lineList.get(0).weight);
 				if(!vis.contains(to) && dist.get(to) > weight){
-					dist.put(to, weight);
 					for(DsLine line : edge.lineList)
 						line.color = Color.YELLOW;
+					dist.put(to, weight);
 				}
-				if(!vis.contains(to) && minDist > dist.get(to)){
-					newRoot = to;
-					minDist = dist.get(to);
-					selectEdge = edge;
+			}
+			
+			for(GraphicNode oneNode : nodeList){
+				if(!vis.contains(oneNode) && minDist > dist.get(oneNode)){
+					newRoot = oneNode;
+					minDist = dist.get(oneNode);
 				}
 			}
 			
 			if(newRoot != null){
+				content.append(root.content + " " + newRoot.content).append(";");
+				root = newRoot;
+				vis.add(root);
+			} 
+		}
+		if(content.charAt(content.length()-1) == ';')
+			content.deleteCharAt(content.length()-1);
+		return content.toString();
+	}
+	
+	//prim算法
+	public void prim(String data){
+		createGraphicData(data);
+		if(nodeList.size() == 0) return;
+		if(this.isWeighted == false) return;
+		
+		//创建消息提示
+		DsSampleRect tipOneRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "黄线 : 距离更新");
+		DsSampleRect tipTwoRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN*2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "蓝靛 : 距离更新并找到距源最近节点");
+		tipOneRect.color = tipTwoRect.color = model.getObserverPanel().getBackground();
+		tipOneRect.fontSize = tipTwoRect.fontSize = 20;
+		shapeList.add(tipOneRect);
+		shapeList.add(tipTwoRect);
+		//创建三个节点，用来指示距离更新的演示
+		DsCircle circleV = new DsCircle(swidth, ShapeSize.GraphicModel.TOP_MARGIN*2+ShapeSize.GraphicModel.SMALL_RECT_HEIGHT*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleU = new DsCircle(swidth, circleV.ly+circleV.lh*4, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleR = new DsCircle(circleU.lx+circleU.lw*3, circleU.ly+circleU.lh*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, nodeList.get(0).content);
+		DsSampleRect compareRect = new DsSampleRect(circleR.lx, circleR.ly-circleR.lh*3, ShapeSize.GraphicModel.CIRCLE_WIDTH*4, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		compareRect.color = Color.CYAN;
+		shapeList.add(compareRect);
+		DsLine lineUV = createLine(circleU, circleV);
+		lineUV.weight = "∞";
+		lineUV.setDefaultLine(new Point(lineUV.x1+5, lineUV.y1));
+		shapeList.add(lineUV);
+		DsLine lineRU = createLine(circleR, circleU);
+		shapeList.add(lineRU);
+		DsLine lineRV = createLine(circleR, circleV);
+		lineRV.weight = "∞";
+		lineRV.setDefaultLine(new Point(lineRV.x1+5, lineRV.y1));
+		shapeList.add(lineRV);
+		
+		//将 circleR 和 circleU圈起来，表示在一个集合里
+		//DsLine rectTopLine = new DsLine(circleU.lx, y1, x2, y2, false);
+		
+		circleR.color = Color.GREEN;
+		shapeList.add(circleR);
+		circleU.color = Color.GREEN;
+		shapeList.add(circleU);
+		shapeList.add(circleV);
+		swidth += circleR.lx + circleR.lw*2; 
+		//记录每个节点的索引
+		Map<GraphicNode, Integer> nodeIndex = new TreeMap<GraphicNode, Integer>();
+		//二维数组，直观的显示源点到各个点的最短距离
+		ArrayList<ArrayList<DsSampleRect> > arrDist = new ArrayList<ArrayList<DsSampleRect>>();
+		arrDist.add(new ArrayList<DsSampleRect>());
+		int leftDist = ShapeSize.GraphicModel.LEFT_MARGIN;
+		int topDist = sheight;
+		sheight += ShapeSize.GraphicModel.CIRCLE_HEIGHT*2;
+		model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		for(int i=0; i<nodeList.size(); ++i){
+			nodeIndex.put(nodeList.get(i), i);
+			DsSampleRect rect = new DsSampleRect(leftDist, topDist, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, nodeList.get(i).content);
+			rect.color = Color.RED;
+			rect.fontSize = 20;
+			shapeList.add(rect);
+			arrDist.get(0).add(rect);
+			if(i == 0){
+				leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2;
+			} else {
+				leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH;
+			}
+		}
+		
+		//首先建立最小生成树的模型
+		String content = firstPrim();
+		System.out.println(content);
+		ForestModel forest = new ForestModel(model);
+		forest.setPrimTreeLeft(leftDist+ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2);
+		forest.setPrimTreeTop(circleR.lx+circleR.lh*2);
+		PrimTreeNodeNeed primTreeNodeNeed = forest.getForestModel(content);
+		
+		//源点到每一个节点的最短的距离
+		Map<GraphicNode, Integer> dist = new TreeMap<GraphicNode, Integer>();
+		//标识某个节点是否访问过
+		Set<GraphicNode> vis = new TreeSet<GraphicNode>();
+		//更新节点的时候，记录是被那一条边更新的
+		Map<GraphicNode, GraphicEdge> nodeToUpdateEdge = new TreeMap<GraphicNode, GraphicEdge>();
+		for(GraphicNode node : nodeList)
+			dist.put(node, Integer.MAX_VALUE);
+		GraphicNode root = nodeList.get(0);
+		dist.put(root, 0);
+		vis.add(root);
+		shapeList.add(primTreeNodeNeed.nodeToShape.get(root.content));
+		for(int i=1; i < nodeList.size(); ++i){//更新 （n-1）次
+			Thread thread = new Thread(new RootRunning(root), "childThread" + i);
+			thread.start();
+			//初始化没有更新前 源节点 到各个节点的最短的距离
+			arrDist.add(new ArrayList<DsSampleRect>());
+			leftDist = ShapeSize.GraphicModel.LEFT_MARGIN;
+			topDist += ShapeSize.GraphicModel.SMALL_RECT_HEIGHT;
+			sheight += ShapeSize.GraphicModel.SMALL_RECT_HEIGHT;
+			model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+			for(int j=0; j<nodeList.size(); ++j){
+				int nodesDist = dist.get(nodeList.get(j));
+				DsSampleRect rect = new DsSampleRect(leftDist, topDist, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, nodesDist == Integer.MAX_VALUE ? "∞" : String.valueOf(nodesDist));
+				rect.color = Color.WHITE;
+				rect.fontSize = 20;
+				synchronized (Shape.class) {shapeList.add(rect);}
+				arrDist.get(i).add(rect);
+				if(j == 0){
+					leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2;
+				} else {
+					leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH;
+				}
+			}
+			//从中间向两边展现
+			DsSampleRect topRect = new DsSampleRect(ShapeSize.GraphicModel.LEFT_MARGIN, topDist, leftDist-ShapeSize.GraphicModel.LEFT_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, null);
+			DsSampleRect downRect = new DsSampleRect(ShapeSize.GraphicModel.LEFT_MARGIN, topDist+ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, leftDist-ShapeSize.GraphicModel.LEFT_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT-ShapeSize.GraphicModel.SMALL_RECT_HEIGHT/2, null);
+			topRect.color = downRect.color = model.getObserverPanel().getBackground();
+			synchronized (Shape.class) {
+				shapeList.add(topRect);
+				shapeList.add(downRect);
+			}
+			final int offDistY = 3;
+			while(topRect.lh >= 0 || downRect.lh >= 0){
+				if(topRect.lh >= 0){
+					topRect.lh -= offDistY;
+				}
+				if(downRect.lh >= 0){
+					downRect.ly += offDistY;
+					downRect.lh -= offDistY;
+				}
+				delay(200);
+			}
+			synchronized (Shape.class) {
+				shapeList.remove(topRect);
+				shapeList.remove(downRect);
+			}
+			int minDist = Integer.MAX_VALUE;
+			//找到新的根节点
+			GraphicNode newRoot = null;
+			//新节点与旧节点之间唯一的一条边
+			GraphicEdge selectEdge = null;
+			for(GraphicEdge edge : root.neighbourEdges){
+				adjustView(model.getObserverPanel(), root.shape.lx, root.shape.ly);
+				GraphicNode to = edge.toNode;
+				int weight = Integer.parseInt(edge.lineList.get(0).weight);
+				
+				if(!vis.contains(to)) {
+					lineAppearAndDisAppear(edge.lineList.toArray(new DsLine[]{}));
+					//更新模拟
+					try {
+						Thread tv = null, tu = null;
+						DsSampleCircle cv = null, cu = null;
+						if(!circleV.content.equals(to.content)){
+							 cv = new DsSampleCircle(to.shape.lx, to.shape.ly, to.shape.lw, to.shape.lh, to.content);
+							 cv.setTransparent(true);
+							 synchronized (Shape.class) { shapeList.add(cv); }
+							 tv = new Thread(new NumberMoving(cv, circleV), "childThread_circleV");
+							 tv.start();
+						}
+						
+						if(!circleU.content.equals(root.content)){
+							cu = new DsSampleCircle(root.shape.lx, root.shape.ly, root.shape.lw, root.shape.lh, root.content);
+							cu.setTransparent(true);
+							synchronized (Shape.class) { shapeList.add(cu); }
+							tu = new Thread(new NumberMoving(cu, circleU), "childThread_circleU");
+							tu.start();
+						}
+						if(tv != null) tv.join();
+						if(tu != null) tu.join();
+						if(cv != null) synchronized (Shape.class) { shapeList.remove(cv); }
+						if(cu != null) synchronized (Shape.class) { shapeList.remove(cu); }
+						
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					lineUV.weight = String.valueOf(weight);
+					lineRV.weight = dist.get(to) == Integer.MAX_VALUE ? "∞" : String.valueOf(dist.get(to));
+					lineAppearAndDisAppear(new DsLine[]{lineUV, lineRV});
+					
+					compareRect.content = lineUV.weight + (dist.get(to) > weight + dist.get(root) ? " < " : " >= ") + lineRV.weight;
+					tipForUpdate(new DsSampleRect[]{compareRect});
+				}
+				
+				if(!vis.contains(to) && dist.get(to) > weight){
+					for(DsLine line : edge.lineList)
+						line.color = Color.YELLOW;
+					dist.put(to, weight);
+					//标记节点距离更新的时候与那一条边有关
+					nodeToUpdateEdge.put(to, edge);
+					//动态过度
+					DsSampleCircle numOne = new DsSampleCircle(lineUV.getContentPoint().x, lineUV.getContentPoint().y, ShapeSize.GraphicModel.CIRCLE_WIDTH/2, ShapeSize.GraphicModel.CIRCLE_HEIGHT/2, lineUV.weight);
+					numOne.fontSize = 25;
+					numOne.setTransparent(true);
+					synchronized (Shape.class) { shapeList.add(numOne); }
+					try {
+						Thread twu = new Thread(new NumberMoving(numOne, lineRV.getContentPoint().x, lineRV.getContentPoint().y));
+						twu.start();
+						twu.join();
+						lineRV.weight = String.valueOf(dist.get(to));
+						lineAppearAndDisAppear(new DsLine[]{lineRV});
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					adjustView(model.getObserverPanel(), arrDist.get(0).get(0).lx, arrDist.get(0).get(0).ly);
+					tipForUpdate(new DsSampleRect[]{arrDist.get(0).get(0), arrDist.get(0).get(nodeIndex.get(to)), arrDist.get(i).get(nodeIndex.get(to))});
+					arrDist.get(i).get(nodeIndex.get(to)).content = String.valueOf(dist.get(to));
+					model.setViewChanged();
+					delay(1000);
+				}
+			}
+			
+			for(GraphicNode oneNode : nodeList){
+				if(!vis.contains(oneNode) && minDist > dist.get(oneNode)){
+					newRoot = oneNode;
+					minDist = dist.get(oneNode);
+					selectEdge = nodeToUpdateEdge.get(oneNode);
+				}
+			}
+			
+			if(newRoot != null){
+				GraphicNode oldRoot = root;
 				root.shape.color = Color.GREEN;
 				root = newRoot;
 				vis.add(root);
 				for(DsLine line : selectEdge.lineList)
 					line.color = Color.CYAN;
-			}
+				synchronized (Shape.class) {
+					shapeList.add(primTreeNodeNeed.nodeToShape.get(newRoot.content));
+					shapeList.add(primTreeNodeNeed.nodesLine.get(new TwoNodes(root.content, newRoot.content)));
+				}
+			} 
+			
 			thread.stop();
+		}
+		//其他的没有选中的边，动态消失
+		ArrayList<Thread> threadList = new ArrayList<Thread>();
+		Set<DsLine> lineSet = new TreeSet<DsLine>();
+		int lineIndex = 0;
+		for(GraphicNode oneNode : nodeList){
+			for(GraphicEdge edge : oneNode.neighbourEdges){
+				for(DsLine line : edge.lineList){
+					if(!lineSet.contains(line) && line.color != Color.CYAN) {//表明不是选中的边，消失
+						lineSet.add(line);
+						Thread lineThead = new Thread(new DynamicLineDisAppear(line), "childThreadLineDisappear" + ++lineIndex);
+						threadList.add(lineThead);
+						lineThead.start();
+					}
+				}
+			}
+		}
+		//必须每个Thread开启会后，然后一起调用join方法才会起作用
+		try {
+			for(Thread lineThread : threadList)
+				lineThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 		model.setViewChanged();
+	}
+	
+	private void adjustLinePtOrg(Boolean ptOrg1Or2, DsLine line){
+		if(ptOrg1Or2 != null) {
+			if(ptOrg1Or2) {
+				line.ptOrg.x = line.x1;
+				line.ptOrg.y = line.y1;
+			}else {
+				line.ptOrg.x = line.x2;
+				line.ptOrg.y = line.y2;
+			}
+		} 
+	}
+	
+	private void lineDisappear(DsLine line){
+		double k = (1.0*line.y2-line.y1)/(line.x2-line.x1);
+		double b = line.y1-k*line.x1;
+		int offDist = 5;
+		Boolean ptOrg1Or2 = null;
+		if(line.ptOrg != null){
+			if(line.ptOrg.equals(new Point(line.x1, line.y1)))
+				ptOrg1Or2 = true;
+			else 
+				ptOrg1Or2 = false;
+		}
+		if(Math.abs(k) < 1.0) {// x值递减
+			if(line.x1 < line.x2){
+				while(line.x1 < line.x2){
+					line.x1 += offDist;
+					line.x2 -= offDist;
+					if(line.x1 > line.x2)
+						break;
+					line.y1 = (int) (k*line.x1 + b);
+					line.y2 = (int) (k*line.x2 + b);
+					adjustLinePtOrg(ptOrg1Or2, line);
+					model.setViewChanged();
+					delay(100);
+				}
+			} else {
+				while(line.x1 > line.x2){
+					line.x1 -= offDist;
+					line.x2 += offDist;
+					if(line.x1 < line.x2)
+						break;
+					line.y1 = (int) (k*line.x1 + b);
+					line.y2 = (int) (k*line.x2 + b);
+					adjustLinePtOrg(ptOrg1Or2, line);
+					model.setViewChanged();
+					delay(100);
+				}
+			} 
+		} else {
+			if(line.y1 < line.y2){
+				while(line.y1 < line.y2){
+					line.y1 += offDist;
+					line.y2 -= offDist;
+					if(line.y1 > line.y2)
+						break;
+					line.x1 = (int)((line.y1-b)/k);
+					line.x2 = (int)((line.y2-b)/k);
+					adjustLinePtOrg(ptOrg1Or2, line);
+					model.setViewChanged();
+					delay(100);
+				}
+			} else {
+				while(line.y1 > line.y2){
+					line.y1 -= offDist;
+					line.y2 += offDist;
+					if(line.y1 > line.y2)
+						break;
+					line.x1 = (int)((line.y1-b)/k);
+					line.x2 = (int)((line.y2-b)/k);
+					adjustLinePtOrg(ptOrg1Or2, line);
+					model.setViewChanged();
+					delay(100);
+				}
+			} 
+		}
+	}
+	
+	class DynamicLineDisAppear implements Runnable{
+		private DsLine line;
+		
+		@Override
+		public void run() {
+			lineDisappear(line);
+			synchronized (Shape.class) {
+				shapeList.remove(line);
+			}
+		}
+		
+		public DynamicLineDisAppear(DsLine line) {
+			super();
+			this.line = line;
+		}
 	}
 	
 	private GraphicNode getFather(Map<GraphicNode, GraphicNode> f, GraphicNode x){
@@ -758,10 +1319,10 @@ public class GraphicModel{
 		}
 	}
 	
-	public GraphicModel(DrawModel model, Boolean isDicircleed, Boolean isWeighted) {
+	public GraphicModel(DrawModel model, Boolean isDirected, Boolean isWeighted) {
 		super();
 		this.model = model;
-		this.isDicircleed = isDicircleed;
+		this.isDirected = isDirected;
 		this.isWeighted = isWeighted;
 		this.shapeList = model.getShapeList();
 	}
@@ -781,4 +1342,25 @@ class TwoGraphicNode implements Comparable<TwoGraphicNode>{
 	public int compareTo(TwoGraphicNode o) {
 		return this.newContent.compareTo(o.newContent);
 	}
+}
+
+class TwoNodes implements Comparable<TwoNodes>{
+	private String nodeOne;
+	private String nodeTwo;
+	public TwoNodes(String nodeOne, String nodeTwo) {
+		super();
+		this.nodeOne = nodeOne;
+		this.nodeTwo = nodeTwo;
+	}
+	@Override
+	public int compareTo(TwoNodes o) {
+		return (nodeOne.hashCode()+nodeTwo.hashCode()) - (o.nodeOne.hashCode()+o.nodeTwo.hashCode());
+	}
+}
+
+class PrimTreeNodeNeed {
+	//每个节点对应的树的图形
+	Map<String, Shape> nodeToShape = new TreeMap<String, Shape>();
+	//树中每两个节点之间的边
+	Map<TwoNodes, DsLine> nodesLine = new TreeMap<TwoNodes, DsLine>();
 }

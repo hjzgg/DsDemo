@@ -6,11 +6,16 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 public class DsSampleCircle extends DsCircle implements Cloneable{
+	private boolean isTransparent = false;
+	public void setTransparent(boolean isTransparent){
+		this.isTransparent = isTransparent;
+	}
 	@Override
 	public void drawShape(Graphics g) {
+		g.setColor(color == null ? Color.RED : color);
+		if(!isTransparent)
+			g.fillOval(lx, ly, lw, lh);
 		g.setFont(new Font("»ªÎÄÐÐ¿¬", Font.BOLD, fontSize < 0 ? 35 : fontSize));
-		g.setColor(color);
-		g.fillOval(lx, ly, lw, lh);
 		FontMetrics fontMetrics = g.getFontMetrics();
 		int contentH = fontMetrics.getLeading()-fontMetrics.getAscent();
 		int contentW = fontMetrics.stringWidth(content);

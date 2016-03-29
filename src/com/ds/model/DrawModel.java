@@ -80,8 +80,6 @@ public class DrawModel extends Observable{
 }
 
 
-
-
 class BinaryIndexedTreeNode{
 	public Integer data;
 	public DsBIndexedTreeRect shape;
@@ -180,6 +178,7 @@ class TreeNode implements Comparable<TreeNode>{
 }
 
 class GraphicEdge{
+	public boolean isNewAdd = false;
 	public String weight;
 	public GraphicNode fromNode;
 	public GraphicNode toNode;
@@ -204,7 +203,10 @@ class GraphicNode implements Comparable<GraphicNode>{
 	
 	@Override
 	public int compareTo(GraphicNode o) {
-		return content.compareTo(o.content);
+		if(content.length() == o.content.length())
+			return content.compareTo(o.content);
+		else 
+			return content.length() - o.content.length();
 	}
 }
 

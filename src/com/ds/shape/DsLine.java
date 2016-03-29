@@ -21,6 +21,12 @@ public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 	public boolean isArrow;
 	public Point ptOrg = null;
 	public Color color = null;
+	
+	private Point contentPoint = null;
+	public Point getContentPoint(){
+		return contentPoint;
+	}
+	
 	public DsLine(int x1, int y1, int x2, int y2, boolean isArrow) {
 		super();
 		this.x1 = x1;
@@ -37,6 +43,7 @@ public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 		this.ptOrg = ptOrg;
 	}
 	
+	//weight的值位于线段中间
 	public void setDefaultLine(Point ptOrg){
 		weightInLinePos = 1;
 		LineSegments = 2;
@@ -74,6 +81,7 @@ public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 			if((y-y1)*(y-y2) > 0)
 				y = (int)(ptOrg.y-L*sinx);
 			g2.drawString(weight, x-wordW/2, y-wordH/2);
+			contentPoint = new Point(x-wordW/2, y-wordH/2);
 		}
 	}
 	
