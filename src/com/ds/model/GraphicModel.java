@@ -2,7 +2,6 @@ package com.ds.model;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
-import com.ds.model.CrossListModel.Edge;
 import com.ds.shape.DsCircle;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsSampleCircle;
@@ -842,6 +840,8 @@ public class GraphicModel{
 		Map<GraphicNode, Integer> dist = new TreeMap<GraphicNode, Integer>();
 		//标记节点是否被访问过
 		Set<GraphicNode> vis = new TreeSet<GraphicNode>();
+		//更新节点的时候，记录是被那一条边更新的
+		Map<GraphicNode, GraphicEdge> nodeToUpdateEdge = new TreeMap<GraphicNode, GraphicEdge>();
 		for(GraphicNode node : nodeList)
 			dist.put(node, Integer.MAX_VALUE);
 		GraphicNode root = nodeList.get(0);
@@ -857,9 +857,8 @@ public class GraphicModel{
 				GraphicNode to = edge.toNode;
 				int weight = Integer.parseInt(edge.lineList.get(0).weight);
 				if(!vis.contains(to) && dist.get(to) > weight){
-					for(DsLine line : edge.lineList)
-						line.color = Color.YELLOW;
 					dist.put(to, weight);
+					nodeToUpdateEdge.put(to, edge);
 				}
 			}
 			
@@ -867,11 +866,12 @@ public class GraphicModel{
 				if(!vis.contains(oneNode) && minDist > dist.get(oneNode)){
 					newRoot = oneNode;
 					minDist = dist.get(oneNode);
+					selectEdge = nodeToUpdateEdge.get(oneNode);
 				}
 			}
 			
 			if(newRoot != null){
-				content.append(root.content + " " + newRoot.content).append(";");
+				content.append(selectEdge.fromNode.content + " " + selectEdge.toNode.content).append(";");
 				root = newRoot;
 				vis.add(root);
 			} 
@@ -912,9 +912,6 @@ public class GraphicModel{
 		lineRV.setDefaultLine(new Point(lineRV.x1+5, lineRV.y1));
 		shapeList.add(lineRV);
 		
-		//将 circleR 和 circleU圈起来，表示在一个集合里
-		//DsLine rectTopLine = new DsLine(circleU.lx, y1, x2, y2, false);
-		
 		circleR.color = Color.GREEN;
 		shapeList.add(circleR);
 		circleU.color = Color.GREEN;
@@ -943,14 +940,23 @@ public class GraphicModel{
 				leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH;
 			}
 		}
+		//最小生成树 提示
+		DsSampleRect treeTip = new DsSampleRect(leftDist+ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2, circleR.ly+circleR.lh*2, ShapeSize.GraphicModel.CIRCLE_WIDTH*6, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "最小生成树如下:");
+		treeTip.color = model.getObserverPanel().getBackground();
+		shapeList.add(treeTip);
 		
 		//首先建立最小生成树的模型
 		String content = firstPrim();
-		System.out.println(content);
 		ForestModel forest = new ForestModel(model);
-		forest.setPrimTreeLeft(leftDist+ShapeSize.GraphicModel.SMALL_RECT_WIDTH*2);
-		forest.setPrimTreeTop(circleR.lx+circleR.lh*2);
-		PrimTreeNodeNeed primTreeNodeNeed = forest.getForestModel(content);
+		forest.setLeftMargin(leftDist+ShapeSize.GraphicModel.SMALL_RECT_WIDTH*4);
+		forest.setTopMargin(circleR.ly+circleR.lh*4);
+		PrimTreeNodeNeed primTreeNodeNeed = forest.primGetForestModel(content);
+		//重新设定窗口的大小
+		if(primTreeNodeNeed.sheight > model.getObserverPanel().getPreferredSize().height)
+			model.getObserverPanel().setPreferredSize(new Dimension(model.getObserverPanel().getPreferredSize().width, primTreeNodeNeed.sheight));
+		if(primTreeNodeNeed.swidth > model.getObserverPanel().getPreferredSize().width)
+			model.getObserverPanel().setPreferredSize(new Dimension(primTreeNodeNeed.swidth, model.getObserverPanel().getPreferredSize().height));
+		
 		
 		//源点到每一个节点的最短的距离
 		Map<GraphicNode, Integer> dist = new TreeMap<GraphicNode, Integer>();
@@ -964,6 +970,7 @@ public class GraphicModel{
 		dist.put(root, 0);
 		vis.add(root);
 		shapeList.add(primTreeNodeNeed.nodeToShape.get(root.content));
+		 
 		for(int i=1; i < nodeList.size(); ++i){//更新 （n-1）次
 			Thread thread = new Thread(new RootRunning(root), "childThread" + i);
 			thread.start();
@@ -972,7 +979,8 @@ public class GraphicModel{
 			leftDist = ShapeSize.GraphicModel.LEFT_MARGIN;
 			topDist += ShapeSize.GraphicModel.SMALL_RECT_HEIGHT;
 			sheight += ShapeSize.GraphicModel.SMALL_RECT_HEIGHT;
-			model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+			if(sheight > primTreeNodeNeed.sheight)
+				model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
 			for(int j=0; j<nodeList.size(); ++j){
 				int nodesDist = dist.get(nodeList.get(j));
 				DsSampleRect rect = new DsSampleRect(leftDist, topDist, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, nodesDist == Integer.MAX_VALUE ? "∞" : String.valueOf(nodesDist));
@@ -1017,7 +1025,7 @@ public class GraphicModel{
 			for(GraphicEdge edge : root.neighbourEdges){
 				adjustView(model.getObserverPanel(), root.shape.lx, root.shape.ly);
 				GraphicNode to = edge.toNode;
-				int weight = Integer.parseInt(edge.lineList.get(0).weight);
+				int weight = Integer.parseInt(edge.weight);
 				
 				if(!vis.contains(to)) {
 					lineAppearAndDisAppear(edge.lineList.toArray(new DsLine[]{}));
@@ -1053,7 +1061,7 @@ public class GraphicModel{
 					lineRV.weight = dist.get(to) == Integer.MAX_VALUE ? "∞" : String.valueOf(dist.get(to));
 					lineAppearAndDisAppear(new DsLine[]{lineUV, lineRV});
 					
-					compareRect.content = lineUV.weight + (dist.get(to) > weight + dist.get(root) ? " < " : " >= ") + lineRV.weight;
+					compareRect.content = lineUV.weight + (weight < dist.get(to) ? " < " : " >= ") + lineRV.weight;
 					tipForUpdate(new DsSampleRect[]{compareRect});
 				}
 				
@@ -1096,14 +1104,17 @@ public class GraphicModel{
 			if(newRoot != null){
 				GraphicNode oldRoot = root;
 				root.shape.color = Color.GREEN;
-				root = newRoot;
-				vis.add(root);
 				for(DsLine line : selectEdge.lineList)
 					line.color = Color.CYAN;
 				synchronized (Shape.class) {
 					shapeList.add(primTreeNodeNeed.nodeToShape.get(newRoot.content));
-					shapeList.add(primTreeNodeNeed.nodesLine.get(new TwoNodes(root.content, newRoot.content)));
+					DsLine line = primTreeNodeNeed.nodesLine.get(new TwoNodes(selectEdge.fromNode.content, selectEdge.toNode.content));
+					line.weight = selectEdge.weight;
+					line.setDefaultLine(new Point(line.x1, line.y1));
+					shapeList.add(line);
 				}
+				root = newRoot;
+				vis.add(root);
 			} 
 			
 			thread.stop();
@@ -1230,28 +1241,37 @@ public class GraphicModel{
 		}
 	}
 	
-	private GraphicNode getFather(Map<GraphicNode, GraphicNode> f, GraphicNode x){
-		return f.get(x) == x ? x : f.put(x, getFather(f, f.get(x)));
-	}
-	
-	private void union(Map<GraphicNode, GraphicNode> f, GraphicNode a, GraphicNode b){
-		GraphicNode fa = getFather(f, a);
-		GraphicNode fb = getFather(f, b);
-		if(fa != fb){
-			f.put(fb, fa);
-		}
+	private DsLine addNodesLine(DsCircle left, DsCircle right){
+		int x1 = left.lx + left.lw/2;
+		int y1 = left.ly + left.lh/2;
+		int x2 = right.lx + right.lw/2;
+		int y2 = right.ly + right.lh/2;
+		//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
+		// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
+		double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
+		double sinx = (x2-x1)/L/2;//除以2，因为ShapeSize.ForestModel.CIRCLE_WIDTH是直径，我们要半径
+		double cosx = (y2-y1)/L/2;
+		x1 = (int)(x1+ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH*sinx);
+		y1 = (int)(y1+ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH*cosx);
+		x2 = (int)(x2-ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT*sinx);
+		y2 = (int)(y2-ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT*cosx);
+		DsLine line = new DsLine(x1, y1, x2, y2, false);
+		return line;
 	}
 	
 	public void kruskal(String data){
 		createGraphicData(data);
 		if(nodeList.size() == 0) return;
-		if(this.isWeighted == false) return;
-		Map<GraphicNode, GraphicNode> f = new TreeMap<GraphicNode, GraphicNode>();
+		if(this.isWeighted == false || this.isDirected == true) return;
 		ArrayList<GraphicEdge> edgeList = new ArrayList<GraphicEdge>();
+		StringBuilder nodeData = new StringBuilder();
 		for(GraphicNode node : nodeList) {
+			nodeData.append(node.content).append(' ');
 			edgeList.addAll(node.neighbourEdges);
-			f.put(node, node);
 		}
+		if(nodeData.length() > 0)
+			nodeData.deleteCharAt(nodeData.length()-1);
+		
 		Collections.sort(edgeList, new Comparator<GraphicEdge>() {
 			@Override
 			public int compare(GraphicEdge o1, GraphicEdge o2) {
@@ -1259,8 +1279,496 @@ public class GraphicModel{
 			}
 		});
 		
+		List<ShapesWithLine> shapesWithLineList = new ArrayList<ShapesWithLine>();
+		List<ShapesWithLine> transitionForShapesWithLine = new ArrayList<ShapesWithLine>();
+		final int leftShapePos = swidth, rightShapePos = swidth+ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH*3;
+		swidth = rightShapePos+ShapeSize.GraphicModel.CIRCLE_WIDTH;
+		model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		Set<Integer> vis = new TreeSet<Integer>();//lineList 的hashCode
 		for(GraphicEdge edge : edgeList){
-			union(f, edge.fromNode, edge.toNode);
+			if(vis.contains(edge.lineList.hashCode())) continue;
+			vis.add(edge.lineList.hashCode());
+			DsCircle left = new DsCircle(leftShapePos, ShapeSize.GraphicModel.TOP_MARGIN, ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, edge.fromNode.content);
+			DsCircle right = new DsCircle(rightShapePos, ShapeSize.GraphicModel.TOP_MARGIN, ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, edge.toNode.content);
+			left.fontSize = right.fontSize = 18;
+			DsLine line = new DsLine(left.lx+left.lw, left.ly+left.lh/2, right.lx, right.ly+right.lh/2, isDirected);
+			line.setDefaultLine(new Point(line.x1, line.y1));
+			line.weight = edge.weight;
+			
+			shapesWithLineList.add(new ShapesWithLine(left, right, line));
+			if(edge.fromNode != edge.toNode){//非自环路
+				DsCircle nodeLeft = (DsCircle) edge.fromNode.shape.clone();
+				nodeLeft.lw = ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH;
+				nodeLeft.lh = ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT;
+				nodeLeft.fontSize = 18;
+				DsCircle nodeRight = (DsCircle) edge.toNode.shape.clone();
+				nodeRight.lw = ShapeSize.GraphicModel.SMALL_CIRCLE_WIDTH;
+				nodeRight.lh = ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT;
+				nodeRight.fontSize = 18;
+				DsLine nodesLine = addNodesLine(nodeLeft, nodeRight);
+				nodesLine.setDefaultLine(new Point(nodesLine.x1, nodesLine.y1));
+				nodesLine.weight = edge.weight;
+				transitionForShapesWithLine.add(new ShapesWithLine(nodeLeft, nodeRight, nodesLine));
+			} else {
+				DsCircle selfLeft = (DsCircle) edge.fromNode.shape.clone();
+				DsCircle selfRight = (DsCircle) selfLeft.clone();
+				selfRight.lx += selfLeft.lw*3;
+				DsLine selfLine = new DsLine(selfLeft.lx+selfLeft.lw, selfLeft.ly+selfLeft.lh/2, selfRight.lx, selfRight.ly+selfRight.lh/2, isDirected);
+				transitionForShapesWithLine.add(new ShapesWithLine(selfLeft, selfRight, selfLine));
+			}
+			synchronized (Shape.class) {
+				//加入过渡的 节点-边-节点
+				int endPos = transitionForShapesWithLine.size()-1;
+				shapeList.add(transitionForShapesWithLine.get(endPos).left);
+				shapeList.add(transitionForShapesWithLine.get(endPos).right);
+				shapeList.add(transitionForShapesWithLine.get(endPos).line);
+			}
+		}
+		//线程 list
+		List<Thread> threadList = new ArrayList<Thread>();
+		
+		//图中的所有的 节点-边-节点 ，通过移动，向边的排序进行过度
+		final int transitionEndX=(leftShapePos+rightShapePos)/2, transitionEndY = ShapeSize.GraphicModel.TOP_MARGIN;
+		class ShapesWithLineTransitionRun implements Runnable{
+			private ShapesWithLine shapesWithLine;
+			@Override
+			public void run() {
+				final int offDistX = Math.abs(shapesWithLine.left.lx - transitionEndX)/20+1;
+				final int offDistY = Math.abs(shapesWithLine.left.ly - transitionEndY)/20+1;
+				final int offDistL = (int) Math.sqrt((shapesWithLine.line.x1-shapesWithLine.line.x2)*(shapesWithLine.line.x1-shapesWithLine.line.x2)
+									 	+ (shapesWithLine.line.y1-shapesWithLine.line.y2)*(shapesWithLine.line.y1-shapesWithLine.line.y2))/20+1;
+				boolean flagX = true, flagY = true;
+				while(flagX || flagY){
+					if(flagX){
+						boolean flag = shapesWithLine.left.lx > transitionEndX;
+						if(flag) {
+							if(shapesWithLine.left.lx - offDistX > transitionEndX){
+								shapesWithLine.left.lx -= offDistX;
+								shapesWithLine.line.x1 -= offDistX;
+								shapesWithLine.line.x2 -= offDistX;
+								shapesWithLine.right.lx -= offDistX;
+								makeTwoNodesNear(offDistL);
+							} else {
+								flagX = false;
+							}
+						} else {
+							if(shapesWithLine.left.lx + offDistX < transitionEndX){
+								shapesWithLine.left.lx += offDistX;
+								shapesWithLine.line.x1 += offDistX;
+								shapesWithLine.line.x2 += offDistX;
+								shapesWithLine.right.lx += offDistX;
+								makeTwoNodesNear(offDistL);
+							} else {
+								flagX = false;
+							}
+						}
+					}
+					if(flagY){
+						boolean flag = shapesWithLine.left.ly > transitionEndY;
+						if(flag) {
+							if(shapesWithLine.left.ly - offDistY > transitionEndY){
+								shapesWithLine.left.ly -= offDistY;
+								shapesWithLine.line.y1 -= offDistY;
+								shapesWithLine.line.y2 -= offDistY;
+								shapesWithLine.right.ly -= offDistY;
+								makeTwoNodesNear(offDistL);
+							} else {
+								flagY = false;
+							}
+						} else {
+							if(shapesWithLine.left.ly + offDistY < transitionEndY){
+								shapesWithLine.left.ly += offDistY;
+								shapesWithLine.line.y1 += offDistY;
+								shapesWithLine.line.y2 += offDistY;
+								shapesWithLine.right.ly += offDistY;
+								makeTwoNodesNear(offDistL);
+							} else {
+								flagY = false;
+							}
+						}
+					}
+					shapesWithLine.line.setDefaultLine(new Point(shapesWithLine.line.x1, shapesWithLine.line.y1));
+					model.setViewChanged();
+					delay(200);
+				}
+				//圆形旋转, 转 4圈
+				final int circleCnt = 4;
+				//每一次旋转的角度
+				final int offAngle = 40;
+				int orgX = shapesWithLine.right.lx;
+				int orgY = shapesWithLine.right.ly;
+				final double radius = Math.sqrt((orgX - transitionEndX)*(orgX - transitionEndX) +
+						(orgY - transitionEndY)*(orgY - transitionEndY));//旋转的半径
+				// 旋转的中心（transitionEndX，transitionEndY）
+				//是否反向旋转
+				boolean isReverse = Math.abs(new Random().nextInt())%2 > 0 ? true : false;
+				int angle = isReverse ? circleCnt*360 : 0;
+				while(true){
+					if(!isReverse && !(angle/360 < circleCnt)) break;
+					if(isReverse && !(angle > 0)) break;
+					if(!isReverse) {
+						angle += offAngle;
+					} else {
+						angle -= offAngle;
+					}
+						
+					double x = Math.PI*angle/180;
+					double sinx = Math.sin(x);
+					double cosx = Math.cos(x);
+					int preX = shapesWithLine.right.lx;
+					int preY = shapesWithLine.right.ly;
+					shapesWithLine.right.lx = (int) (orgX+radius*sinx);
+					shapesWithLine.right.ly = (int) (orgY+radius*(1-cosx));
+					
+					int addX = shapesWithLine.right.lx - preX;
+					int addY = shapesWithLine.right.ly - preY;
+					shapesWithLine.left.lx += addX;
+					shapesWithLine.left.ly += addY;
+					shapesWithLine.line.x1 += addX;
+					shapesWithLine.line.x2 += addX;
+					shapesWithLine.line.y1 += addY;
+					shapesWithLine.line.y2 += addY;
+					
+					shapesWithLine.line.ptOrg.x = shapesWithLine.line.x1;
+					shapesWithLine.line.ptOrg.y = shapesWithLine.line.y1;
+					
+					model.setViewChanged();
+					delay(100);
+				}
+				
+				//清除 过渡的 节点-边-节点
+				synchronized (Shape.class) {
+					shapeList.remove(shapesWithLine.left);
+					shapeList.remove(shapesWithLine.right);
+					shapeList.remove(shapesWithLine.line);
+				}
+			}
+			private void makeTwoNodesNear(final int offDistL){
+				if(shapesWithLine.line.x1 == shapesWithLine.line.x2){//垂直线
+					if(shapesWithLine.line.y2-offDistL > shapesWithLine.line.y1){
+						shapesWithLine.line.y2 -= offDistL;
+						shapesWithLine.right.ly -= offDistL;
+					} else if(shapesWithLine.line.y2+offDistL < shapesWithLine.line.y1){
+						shapesWithLine.line.y2 += offDistL;
+						shapesWithLine.right.ly += offDistL;
+					}
+				} else if(shapesWithLine.line.y1 == shapesWithLine.line.y2){//水平线
+					if(shapesWithLine.line.x2-offDistL > shapesWithLine.line.x1) {
+						shapesWithLine.line.x2 -= offDistL;
+						shapesWithLine.right.lx -= offDistL;
+					} else if(shapesWithLine.line.x2+offDistL < shapesWithLine.line.x1) {
+						shapesWithLine.line.x2 += offDistL;
+						shapesWithLine.right.lx += offDistL;
+					}
+				} else {//根据斜率计算得到
+					if(offDistL+20 > (int)Math.sqrt((shapesWithLine.line.y1-shapesWithLine.line.y2)*(shapesWithLine.line.y1-shapesWithLine.line.y2) +
+													(shapesWithLine.line.x1-shapesWithLine.line.x2)*(shapesWithLine.line.x1-shapesWithLine.line.x2)))
+						return;
+					double k = ((double)shapesWithLine.line.y1-shapesWithLine.line.y2)/(shapesWithLine.line.x1-shapesWithLine.line.x2);
+					double angle = Math.atan(k);//并计算出角度
+					double sinx = (2*Math.tan(angle/2)/(1+Math.tan(angle/2)*Math.tan(angle/2)));
+					double cosx = ((1-Math.tan(angle/2)*Math.tan(angle/2)))/((1+Math.tan(angle/2)*Math.tan(angle/2)));
+					
+					int x = (int) (shapesWithLine.line.x2 + offDistL*cosx); 
+					int y = (int) (shapesWithLine.line.y2 + offDistL*sinx); 
+					int orgX = shapesWithLine.line.x2;
+					int orgY = shapesWithLine.line.y2;
+					//计算x坐标
+					if((shapesWithLine.line.x1 - x) * (shapesWithLine.line.x2 - x) <= 0) {
+						shapesWithLine.line.x2 = x;
+				    } else {
+				    	shapesWithLine.line.x2 = (int) (shapesWithLine.line.x2 - offDistL*cosx);
+					}
+					//计算y坐标
+					if((shapesWithLine.line.y1 - y) * (shapesWithLine.line.y2 - y) <= 0) {
+						shapesWithLine.line.y2 = y;
+				    } else {
+				    	shapesWithLine.line.y2 = (int) (shapesWithLine.line.y2 - offDistL*sinx);
+					}
+					shapesWithLine.right.lx += shapesWithLine.line.x2 - orgX;
+					shapesWithLine.right.ly += shapesWithLine.line.y2 - orgY;
+				}
+			}
+			public ShapesWithLineTransitionRun(ShapesWithLine shapesWithLine) {
+				super();
+				this.shapesWithLine = shapesWithLine;
+			}
+		}
+		for(int i=0; i < transitionForShapesWithLine.size(); ++i){
+			ShapesWithLine shapesWithLine = transitionForShapesWithLine.get(i);
+			Thread thread = new Thread(new ShapesWithLineTransitionRun(shapesWithLine), "childThreadShapesWithLineTransitionRun" + i);
+			thread.start();
+			threadList.add(thread);
+		}
+		
+		try {
+			for(Thread thread : threadList)
+				thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		int shapesWithLineListHeight = ShapeSize.GraphicModel.TOP_MARGIN + shapesWithLineList.size()*(ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT+10);
+		if(sheight < shapesWithLineListHeight){
+			sheight = shapesWithLineListHeight;
+			model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		}
+		
+		threadList.clear();
+		synchronized (Shape.class) {
+			for(ShapesWithLine shapesWithLine : shapesWithLineList){
+				shapeList.add(shapesWithLine.left);
+				shapeList.add(shapesWithLine.right);
+				shapeList.add(shapesWithLine.line);
+			}
+		}
+		for(int i=0; i < shapesWithLineList.size(); ++i){
+			Thread thread = new Thread(new ShapesAndLineRunning(shapesWithLineList.get(i), ShapeSize.GraphicModel.TOP_MARGIN+i*(ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT+10)), "childThreadShapesWithLineMove"+i);
+			thread.start();
+			threadList.add(thread);
+		}
+		
+		try {
+			for(Thread thread : threadList)
+				thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		UnionFindSetModel ufsm = new UnionFindSetModel(model);
+		ufsm.setLeftMargin(rightShapePos + ShapeSize.GraphicModel.CIRCLE_WIDTH*2);
+		ufsm.setTopMargin(ShapeSize.UnionFindSetModel.TOP_MARGIN);
+		int forestRight = ufsm.primUnionFindSetInit(nodeData.toString());
+		if(swidth < forestRight){
+			swidth = forestRight;
+			model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		}
+		
+		for(int i=0; i<shapesWithLineList.size(); ++i){
+			ShapesWithLine shapesWithLine = shapesWithLineList.get(i);
+			String[] xy = {shapesWithLine.left.content, shapesWithLine.right.content};
+			class ShapesWithLineFlash implements Runnable{
+				private ShapesWithLine tmpShapesWithLine;
+				public ShapesWithLineFlash(ShapesWithLine shapesWithLine){
+					this.tmpShapesWithLine = shapesWithLine;
+				}
+				public boolean isRun = true;
+				private boolean flag = true;
+				public void stop(){
+					isRun = false;
+					if(!flag) {
+						synchronized (Shape.class) {
+							shapeList.add(tmpShapesWithLine.left);
+							shapeList.add(tmpShapesWithLine.line);
+							shapeList.add(tmpShapesWithLine.right);
+						}
+					}
+				}
+				@Override
+				public void run() {
+					while(isRun){
+						if(flag) {
+							synchronized (Shape.class) {
+								shapeList.remove(tmpShapesWithLine.left);
+								shapeList.remove(tmpShapesWithLine.line);
+								shapeList.remove(tmpShapesWithLine.right);
+							}
+						} else {
+							synchronized (Shape.class) {
+								shapeList.add(tmpShapesWithLine.left);
+								shapeList.add(tmpShapesWithLine.line);
+								shapeList.add(tmpShapesWithLine.right);
+							}
+						}
+						flag = !flag;
+						model.setViewChanged();
+						delay(300);
+					}
+				}
+			};
+			ShapesWithLineFlash run = new ShapesWithLineFlash(shapesWithLine);
+			new Thread(run, "childThreadShapesWithLineFlash"+i).start();
+			if(ufsm.primUnionFindSetShow(xy)){
+				shapesWithLine.left.color = Color.GREEN;
+				shapesWithLine.right.color = Color.GREEN;
+			}
+			run.stop();
+		}
+		
+		//选中的 边
+		List<ShapesWithLine> selectShapesWithLine = new ArrayList<ShapesWithLine>();
+		//未选中的边 删除
+		threadList.clear();
+		for(int i=0; i<shapesWithLineList.size(); ++i){
+			ShapesWithLine shapesWithLine = shapesWithLineList.get(i);
+			if(shapesWithLine.left.color == Color.RED){
+				Thread thread = new Thread(new ShapesAndLineRunning(shapesWithLine, -50), "childThreadShapesAndLineRunning"+i);
+				threadList.add(thread);
+				thread.start();
+			} else {
+				selectShapesWithLine.add(shapesWithLine);
+			}
+		}
+		
+		try {
+			for(Thread thread : threadList)
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		//选中的边闪烁 后 生成最小生成树
+		selectShapesWithLineFlash(selectShapesWithLine);
+		//选中的边消失
+		for(ShapesWithLine shapesWithLine : selectShapesWithLine){
+			synchronized (Shape.class) { 
+				shapeList.remove(shapesWithLine.line);
+				shapeList.remove(shapesWithLine.left);
+				shapeList.remove(shapesWithLine.right);
+			}
+		}
+		
+		StringBuilder edgeData = new StringBuilder();
+		//节点是否包含在 树中
+		Set<String> tree = new TreeSet<String>();
+		//保存的是两个节点边的权值
+		Map<TwoNodes, String> lineWeight = new TreeMap<TwoNodes, String>();
+		for(ShapesWithLine shapesWithLine : selectShapesWithLine){
+			if(tree.contains(shapesWithLine.left.content)) {
+				edgeData.append(shapesWithLine.left.content).append(' ').append(shapesWithLine.right.content).append(';');
+			} else {
+				edgeData.append(shapesWithLine.right.content).append(' ').append(shapesWithLine.left.content).append(';');
+			}
+			lineWeight.put(new TwoNodes(shapesWithLine.left.content, shapesWithLine.right.content), shapesWithLine.line.weight);
+			tree.add(shapesWithLine.left.content);
+			tree.add(shapesWithLine.right.content);
+		}
+		if(edgeData.length() > 0)
+			edgeData.deleteCharAt(edgeData.length()-1);
+		
+		ForestModel forestModel = new ForestModel(model);
+		forestModel.setLeftMargin(leftShapePos);
+		//得到最小生成树的右边界（并查集树的左边界） 和 最小生成树的树根
+		KruskalTreeNeed kruskalTreeNeed = forestModel.kruskalGetForestModel(edgeData.toString());
+		//最终 图形的右边界, 并重新调整
+		int finalRight = ufsm.unionFindSetRepaint(kruskalTreeNeed.forestRight);
+		if(swidth < finalRight) {
+			swidth = finalRight;
+			model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		}
+		
+		BlankRectNeed blankRectNeed = new BlankRectNeed();
+		forestDfs(kruskalTreeNeed.roots, kruskalTreeNeed.nodesLine, lineWeight, blankRectNeed);
+		DsSampleRect blankRect = new DsSampleRect(blankRectNeed.rectLeft, blankRectNeed.rectTop, blankRectNeed.rectRight-blankRectNeed.rectLeft, blankRectNeed.rectBottom-blankRectNeed.rectTop, null);
+		blankRect.color = model.getObserverPanel().getBackground();
+		synchronized(Shape.class) { shapeList.add(blankRect); }
+		
+		//展现最小生成树
+		final int offDistX = blankRect.lw/20, offDistY = blankRect.lh/20;
+		while(blankRect.lw > 0 && blankRect.lh > 0){
+			model.setViewChanged();
+			blankRect.lx += offDistX/2;
+			blankRect.lw -= offDistX;
+			blankRect.ly += offDistY/2;
+			blankRect.lh -= offDistY;
+			delay(100);
+		}
+		synchronized (Shape.class) { shapeList.remove(blankRect); }
+		model.setViewChanged();
+	}
+	
+	/**
+	 * @param roots 森林的树根节点
+	 * @param nodesLine	森林中两个节点对应的边
+	 * @param lineWeight  边的权值
+	 * @param blankRectNeed	空白矩形区域的边界，用来挡住最小生成树
+	 */
+	private void forestDfs(ArrayList<ForestNode> roots, Map<TwoNodes, DsLine> nodesLine, Map<TwoNodes, String> lineWeight, BlankRectNeed blankRectNeed){
+		for(ForestNode root : roots){
+			if(blankRectNeed.rectLeft > root.shape.lx) blankRectNeed.rectLeft = root.shape.lx;
+			if(blankRectNeed.rectRight < root.shape.lx+root.shape.lw) blankRectNeed.rectRight = root.shape.lx+root.shape.lw;
+			if(blankRectNeed.rectTop > root.shape.ly) blankRectNeed.rectTop = root.shape.ly;
+			if(blankRectNeed.rectBottom < root.shape.ly+root.shape.lh) blankRectNeed.rectBottom = root.shape.ly+root.shape.lh;
+			if(root.childList.size() > 0){//叶子节点
+				forestDfs(root.childList, nodesLine, lineWeight, blankRectNeed);
+				//为边添加权值
+				for(ForestNode child : root.childList) {
+					TwoNodes twoNodes = new TwoNodes(root.content, child.content);
+					DsLine line = nodesLine.get(twoNodes);
+					line.setDefaultLine(new Point(line.x1, line.y1));
+					line.weight = lineWeight.get(twoNodes);
+				}
+			}
+		}
+	}
+	
+	private void selectShapesWithLineFlash(List<ShapesWithLine> selectShapesWithLine){
+		boolean flag = true;
+		for(int i=0; i<4; ++i){
+			if(flag){
+				for(ShapesWithLine shapesWithLine : selectShapesWithLine){
+					shapesWithLine.left.color = shapesWithLine.right.color = Color.RED;
+					shapesWithLine.line.color = Color.CYAN;
+				}
+			} else {
+				for(ShapesWithLine shapesWithLine : selectShapesWithLine){
+					shapesWithLine.left.color = shapesWithLine.right.color = Color.GREEN;
+					shapesWithLine.line.color = Color.BLACK;
+				}
+			}
+			flag = !flag;
+			model.setViewChanged();
+			delay(300);
+		}
+	}
+	
+	class ShapesAndLineRunning implements Runnable{
+		private ShapesWithLine shapesWithLine;
+		private int ty;
+		public ShapesAndLineRunning(ShapesWithLine shapesWithLine, int ty) {
+			super();
+			this.shapesWithLine = shapesWithLine;
+			this.ty = ty;
+		}
+		@Override
+		public void run() {
+			moveShapesAndLine(shapesWithLine, ty);
+		}
+	}
+	
+	//向下移动， 左边的shape作为基准
+	private void moveShapesAndLine(ShapesWithLine shapesWithLine, int ty){
+		final int offDistY = Math.abs(ty - shapesWithLine.left.ly)/20;//10不左右移动完毕
+		if(shapesWithLine.left.ly < ty) {
+			while(shapesWithLine.left.ly < ty){
+				if(shapesWithLine.left.ly+offDistY > ty){
+					shapesWithLine.left.ly = shapesWithLine.right.ly = ty;
+					shapesWithLine.line.ptOrg.y = shapesWithLine.line.y1 = shapesWithLine.line.y2 = shapesWithLine.left.ly + shapesWithLine.left.lh/2;
+					break;
+				}
+				shapesWithLine.left.ly += offDistY;
+				shapesWithLine.right.ly += offDistY;
+				shapesWithLine.line.y1 += offDistY;
+				shapesWithLine.line.y2 += offDistY;
+				shapesWithLine.line.ptOrg.y += offDistY;
+				model.setViewChanged();
+				delay(100);
+			}
+		} else if(shapesWithLine.left.ly > ty){
+			while(shapesWithLine.left.ly > ty){
+				if(shapesWithLine.left.ly+offDistY < ty){
+					shapesWithLine.left.ly = shapesWithLine.right.ly = ty;
+					shapesWithLine.line.ptOrg.y = shapesWithLine.line.y1 = shapesWithLine.line.y2 = shapesWithLine.left.ly + shapesWithLine.left.lh/2;
+					break;
+				}
+				shapesWithLine.left.ly -= offDistY;
+				shapesWithLine.right.ly -= offDistY;
+				shapesWithLine.line.y1 -= offDistY;
+				shapesWithLine.line.y2 -= offDistY;
+				shapesWithLine.line.ptOrg.y -= offDistY;
+				model.setViewChanged();
+				delay(100);
+			}
 		}
 	}
 	
@@ -1270,10 +1778,11 @@ public class GraphicModel{
 		if(nodeList.size() == 0) return;
 		if(this.isWeighted == false) return;
 		Map<TwoGraphicNode, Integer> g = new TreeMap<TwoGraphicNode, Integer>();
-		for(GraphicNode from : nodeList)
+		for(GraphicNode from : nodeList){
 			for(GraphicNode to : nodeList){
 				g.put(new TwoGraphicNode(from, to), Integer.MAX_VALUE);
 			}
+		}
 		
 		for(GraphicNode node : nodeList){
 			TwoGraphicNode x = new TwoGraphicNode(node, node);
@@ -1345,22 +1854,36 @@ class TwoGraphicNode implements Comparable<TwoGraphicNode>{
 }
 
 class TwoNodes implements Comparable<TwoNodes>{
-	private String nodeOne;
-	private String nodeTwo;
+	private String combineValue;
 	public TwoNodes(String nodeOne, String nodeTwo) {
 		super();
-		this.nodeOne = nodeOne;
-		this.nodeTwo = nodeTwo;
+		if(nodeOne.compareTo(nodeTwo) < 0)
+			combineValue = nodeOne + nodeTwo;
+		else
+			combineValue = nodeTwo + nodeOne;
 	}
 	@Override
 	public int compareTo(TwoNodes o) {
-		return (nodeOne.hashCode()+nodeTwo.hashCode()) - (o.nodeOne.hashCode()+o.nodeTwo.hashCode());
+		return this.combineValue.compareTo(o.combineValue);
 	}
 }
 
 class PrimTreeNodeNeed {
 	//每个节点对应的树的图形
-	Map<String, Shape> nodeToShape = new TreeMap<String, Shape>();
+	public Map<String, Shape> nodeToShape = new TreeMap<String, Shape>();
 	//树中每两个节点之间的边
-	Map<TwoNodes, DsLine> nodesLine = new TreeMap<TwoNodes, DsLine>();
+	public Map<TwoNodes, DsLine> nodesLine = new TreeMap<TwoNodes, DsLine>();
+	public int swidth = -1;
+	public int sheight = -1;
+}
+
+class KruskalTreeNeed{
+	public int forestRight;
+	public ArrayList<ForestNode> roots;
+	public Map<TwoNodes, DsLine> nodesLine = new TreeMap<TwoNodes, DsLine>();
+}
+
+class BlankRectNeed{
+	public int rectLeft = Integer.MAX_VALUE, rectTop = Integer.MAX_VALUE,
+		    rectRight = -1, rectBottom = -1;
 }

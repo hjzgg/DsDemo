@@ -2,6 +2,7 @@ package com.ds.model;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,7 @@ import com.ds.size.ShapeSize;
 public class UnionFindSetModel {
 	private DrawModel model;
 	private ArrayList<Shape> shapeList;
-	
+	private List<Shape> unionFindSetShapes = new ArrayList<Shape>();
 	private Map<String, String> f = new TreeMap<String, String>();
 	private Map<String, ForestNode> setNodes = new TreeMap<String, ForestNode>();
 	private ArrayList<ForestNode> roots = null;
@@ -31,13 +32,25 @@ public class UnionFindSetModel {
 	}
 	
 	private void repaintTree(){
-		leftMargin = -1;
+		leftMargin = preLeftMargin;
 		forestNodeCnt = 0;
 		forestRight = -1;
 		maxLevel = -1;
-		shapeList.clear();
+		synchronized (Shape.class) { shapeList.removeAll(unionFindSetShapes); }
 		graphicUnionFindSetModel(roots, 1, true);
 		model.setViewChanged();
+	}
+	
+	//提供给 Kruskal算法的接口，用来调整并查集 树的位置
+ 
+	/**
+	 * @param leftMargin 并查集树的 左边界位置
+	 * @return 并查集树的右边界的位置
+	 */
+	public int unionFindSetRepaint(int leftMargin){
+		setLeftMargin(leftMargin);
+		repaintTree();
+		return forestRight;
 	}
 	
 	private void delay(int time){
@@ -58,7 +71,7 @@ public class UnionFindSetModel {
 			moveChildrenForest(childNode, offDistY);
 	}
 	
-	private void union(String x, String y){
+	private boolean union(String x, String y){
 		String fx = find(x);
 		String fy = find(y);
 		if(!fx.equals(fy)){
@@ -73,7 +86,7 @@ public class UnionFindSetModel {
 			DsLine line2 = addForestLine(setNodes.get(fy), setNodes.get(fx), false);
 			DsLine line1 = new DsLine(line2.x1, line2.y1, line2.x1, line2.y1, false);
 			line1.color = Color.RED;
-			synchronized (Shape.class) { shapeList.add(0, line1); }
+			synchronized (Shape.class) { shapeList.add(0, line1); unionFindSetShapes.add(line1);}
 			lineMove(line1, line2);
 			boolean flag = true;
 			for(int i=1; i<=4; ++i){
@@ -87,7 +100,9 @@ public class UnionFindSetModel {
 			setNodes.get(fy).childList.add(setNodes.get(fx));
 			roots.remove(setNodes.get(fx));
 			repaintTree();
+			return true;
 		}
+		return false;
 	}
 	
 	private void lineMove(DsLine line1, DsLine line2){
@@ -142,8 +157,35 @@ public class UnionFindSetModel {
 		model.setViewChanged();
 	}
 	
-	private int leftMargin = -1, forestNodeCnt = 0, forestRight = -1, maxLevel = -1;
+	public int primUnionFindSetInit(String data){
+		roots = new ArrayList<ForestNode>();
+		String[] nodes = data.split(" ");
+		for(String node : nodes){
+			f.put(node, node);
+			roots.add(new ForestNode(node));
+			setNodes.put(node, roots.get(roots.size()-1));
+		}
+		graphicUnionFindSetModel(roots, 1, true);
+		return forestRight;
+	}
 	
+	public boolean primUnionFindSetShow(String[] xy){
+		boolean isUnion = union(xy[0], xy[1]);
+		delay(1000);
+		return isUnion;
+	}
+	
+	private int leftMargin = -1, preLeftMargin = -1, forestNodeCnt = 0, forestRight = -1, maxLevel = -1;
+	private int topMargin = -1;
+	
+	public void setLeftMargin(int leftMargin) {
+		this.preLeftMargin = this.leftMargin = leftMargin;
+	}
+
+	public void setTopMargin(int topMargin) {
+		this.topMargin = topMargin;
+	}
+
 	private int graphicUnionFindSetModel(ArrayList<ForestNode> roots, int level, boolean isAdd){
 		if(maxLevel < level) maxLevel = level;
 		int allNodes = 0;
@@ -153,22 +195,22 @@ public class UnionFindSetModel {
 				++forestNodeCnt;
 				int circleLeft = leftMargin < 0 ? ShapeSize.UnionFindSetModel.LEFT_MARGIN : leftMargin; 
 				circleLeft += (forestNodeCnt-1)*(ShapeSize.UnionFindSetModel.NODES_HOR_DIST + ShapeSize.UnionFindSetModel.CIRCLE_WIDTH);
-				int circleTop = ShapeSize.UnionFindSetModel.TOP_MARGIN;
+				int circleTop = topMargin < 0 ? ShapeSize.UnionFindSetModel.TOP_MARGIN : topMargin;
 				circleTop += (level-1)*(ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT + ShapeSize.UnionFindSetModel.LEVEL_DIST);
 				
 				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.UnionFindSetModel.CIRCLE_WIDTH, ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT, root.content);
-				if(isAdd) shapeList.add(shapeCircle);
+				if(isAdd) { shapeList.add(shapeCircle); unionFindSetShapes.add(shapeCircle); };
 				root.shape = shapeCircle;
 				
-				if(forestRight < circleLeft+ShapeSize.UnionFindSetModel.CIRCLE_WIDTH)
-					forestRight = circleLeft+ShapeSize.UnionFindSetModel.CIRCLE_WIDTH;
+				if(forestRight < circleLeft+ShapeSize.UnionFindSetModel.CIRCLE_WIDTH*2)
+					forestRight = circleLeft+ShapeSize.UnionFindSetModel.CIRCLE_WIDTH*2;
 				curRootChilds = 1;
 			} else {//非叶子节点
 				curRootChilds = 1+graphicUnionFindSetModel(root.childList, level+1, isAdd);
 				int circleLeft = (root.childList.get(0).shape.lx + root.childList.get(root.childList.size()-1).shape.lx)/2;
 				int circleTop = ShapeSize.UnionFindSetModel.TOP_MARGIN + (level-1)*(ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT + ShapeSize.UnionFindSetModel.LEVEL_DIST);
 				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.UnionFindSetModel.CIRCLE_WIDTH, ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT, root.content);
-				if(isAdd) shapeList.add(shapeCircle);
+				if(isAdd) { shapeList.add(shapeCircle); unionFindSetShapes.add(shapeCircle); };
 				root.shape = shapeCircle;
 				
 				//添加连线
@@ -181,6 +223,8 @@ public class UnionFindSetModel {
 				DsLine line = new DsLine(root.shape.lx+root.shape.lw/2, root.shape.ly, root.shape.lx+root.shape.lw/2, root.shape.ly-ShapeSize.UnionFindSetModel.LEVEL_DIST, false);
 				shapeList.add(line);
 				shapeList.add(rect);
+				unionFindSetShapes.add(line);
+				unionFindSetShapes.add(rect);
 			}
 		}
 		return allNodes;
@@ -194,7 +238,7 @@ public class UnionFindSetModel {
 		
 		if(x1 == x2){
 			DsLine line = new DsLine(x1, y1+ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT/2, x2, y2-ShapeSize.UnionFindSetModel.CIRCLE_HEIGHT/2, false);
-			if(isAdd) shapeList.add(line);
+			if(isAdd) { shapeList.add(line); unionFindSetShapes.add(line); };
 			T.lineList.add(line);
 			return line;
 		}
@@ -209,7 +253,7 @@ public class UnionFindSetModel {
 		x2 = (int)(x2-ShapeSize.UnionFindSetModel.CIRCLE_WIDTH*sinx);
 		y2 = (int)(y2-ShapeSize.UnionFindSetModel.CIRCLE_WIDTH*cosx);
 		DsLine line = new DsLine(x1, y1, x2, y2, false);
-		if(isAdd) shapeList.add(line);
+		if(isAdd) { shapeList.add(line); unionFindSetShapes.add(line); };
 		T.lineList.add(line);
 		return line;
 	}

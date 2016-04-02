@@ -191,6 +191,18 @@ class GraphicEdge{
 	}
 }
 
+class ShapesWithLine{
+	public DsCircle left, right;
+	public DsLine line;
+	public ShapesWithLine(DsCircle left, DsCircle right, DsLine line) {
+		super();
+		this.left = left;
+		this.right = right;
+		this.line = line;
+	}
+}
+
+
 class GraphicNode implements Comparable<GraphicNode>{
 	public ArrayList<GraphicEdge> neighbourEdges;
 	public String content;

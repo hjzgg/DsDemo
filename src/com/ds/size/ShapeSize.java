@@ -62,6 +62,9 @@ public class ShapeSize {
 		
 		public static final int SMALL_RECT_WIDTH = 35;
 		public static final int SMALL_RECT_HEIGHT = 35;
+		
+		public static final int SMALL_CIRCLE_WIDTH = 30;
+		public static final int SMALL_CIRCLE_HEIGHT = 30;
 	}
 	
 	//π„“Â±Ì

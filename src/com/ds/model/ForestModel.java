@@ -59,30 +59,43 @@ public class ForestModel {
 		int y1 = T.shape.ly + T.shape.lh/2;
 		int x2 = Tchild.shape.lx + Tchild.shape.lw/2;
 		int y2 = Tchild.shape.ly + Tchild.shape.lh/2;
-		
+		DsLine line = null;
 		if(x1 == x2){
-			DsLine line = new DsLine(x1, y1+ShapeSize.ForestModel.CIRCLE_HEIGHT/2, x2, y2-ShapeSize.ForestModel.CIRCLE_HEIGHT/2, false);
-			if(isAdd) shapeList.add(line);
-			T.lineList.add(line);
-			return ;
+			line = new DsLine(x1, y1+ShapeSize.ForestModel.CIRCLE_HEIGHT/2, x2, y2-ShapeSize.ForestModel.CIRCLE_HEIGHT/2, false);
+		} else {
+			//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
+			// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
+			double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
+			double sinx = (x2-x1)/L/2;//除以2，因为ShapeSize.ForestModel.CIRCLE_WIDTH是直径，我们要半径
+			double cosx = (y2-y1)/L/2;
+			x1 = (int)(x1+ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
+			y1 = (int)(y1+ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
+			x2 = (int)(x2-ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
+			y2 = (int)(y2-ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
+			line = new DsLine(x1, y1, x2, y2, false);
 		}
-		
-		//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
-		// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
-		double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
-		double sinx = (x2-x1)/L/2;//除以2，因为ShapeSize.ForestModel.CIRCLE_WIDTH是直径，我们要半径
-		double cosx = (y2-y1)/L/2;
-		x1 = (int)(x1+ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
-		y1 = (int)(y1+ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
-		x2 = (int)(x2-ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
-		y2 = (int)(y2-ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
-		DsLine line = new DsLine(x1, y1, x2, y2, false);
 		if(isAdd) shapeList.add(line);
 		T.lineList.add(line);
+		
+		if(primTreeNodeNeed != null) {
+			primTreeNodeNeed.nodesLine.put(new TwoNodes(T.content, Tchild.content), line);
+		}
+		
+		if(kruskalTreeNeed != null) {
+			kruskalTreeNeed.nodesLine.put(new TwoNodes(T.content, Tchild.content), line);
+		}
 	}
 	
-	private int leftMargin = -1, forestNodeCnt = 0, bTreeNodeCnt = 0;
+	private int leftMargin = -1, forestNodeCnt = 0, bTreeNodeCnt = 0, topMargin = -1;
+	public void setLeftMargin(int leftMargin){
+		this.leftMargin = leftMargin;
+	}
+	public void setTopMargin(int topMargin){
+		this.topMargin = topMargin;
+	}
 	
+	private PrimTreeNodeNeed primTreeNodeNeed = null;
+	private KruskalTreeNeed kruskalTreeNeed = null;
 	private void graphicForestModel(ArrayList<ForestNode> roots, int level, boolean isAdd){
 		if(maxLevel < level) maxLevel = level;
 		for(ForestNode root : roots){
@@ -90,19 +103,26 @@ public class ForestModel {
 				++forestNodeCnt;
 				int circleLeft = leftMargin < 0 ? ShapeSize.ForestModel.LEFT_MARGIN : leftMargin; 
 				circleLeft += (forestNodeCnt-1)*(ShapeSize.ForestModel.NODES_HOR_DIST + ShapeSize.ForestModel.CIRCLE_WIDTH);
-				int circleTop = ShapeSize.ForestModel.TOP_MARGIN;
+				int circleTop = topMargin < 0 ? ShapeSize.ForestModel.TOP_MARGIN : topMargin;
 				circleTop += (level-1)*(ShapeSize.ForestModel.CIRCLE_HEIGHT + ShapeSize.ForestModel.LEVEL_DIST);
 				
 				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.ForestModel.CIRCLE_WIDTH, ShapeSize.ForestModel.CIRCLE_HEIGHT, root.content);
 				if(isAdd) shapeList.add(shapeCircle);
 				root.shape = shapeCircle;
 				
-				if(forestRight < circleLeft+ShapeSize.ForestModel.CIRCLE_WIDTH)
-					forestRight = circleLeft+ShapeSize.ForestModel.CIRCLE_WIDTH;
+				if(forestRight < circleLeft+ShapeSize.ForestModel.CIRCLE_WIDTH*2)
+					forestRight = circleLeft+ShapeSize.ForestModel.CIRCLE_WIDTH*2;
+				
+				if(primTreeNodeNeed != null) {
+					if(primTreeNodeNeed.swidth < shapeCircle.lx+shapeCircle.lw*2)
+						primTreeNodeNeed.swidth = shapeCircle.lx+shapeCircle.lw*2;
+					if(primTreeNodeNeed.sheight < shapeCircle.ly+shapeCircle.lh*2)
+						primTreeNodeNeed.sheight = shapeCircle.ly+shapeCircle.lh*2;
+				}
 			} else {//非叶子节点
 				graphicForestModel(root.childList, level+1, isAdd);
 				int circleLeft = (root.childList.get(0).shape.lx + root.childList.get(root.childList.size()-1).shape.lx)/2;
-				int circleTop = ShapeSize.ForestModel.TOP_MARGIN + (level-1)*(ShapeSize.ForestModel.CIRCLE_HEIGHT + ShapeSize.ForestModel.LEVEL_DIST);
+				int circleTop = (topMargin < 0 ? ShapeSize.ForestModel.TOP_MARGIN : topMargin) + (level-1)*(ShapeSize.ForestModel.CIRCLE_HEIGHT + ShapeSize.ForestModel.LEVEL_DIST);
 				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.ForestModel.CIRCLE_WIDTH, ShapeSize.ForestModel.CIRCLE_HEIGHT, root.content);
 				if(isAdd) shapeList.add(shapeCircle);
 				root.shape = shapeCircle;
@@ -110,6 +130,10 @@ public class ForestModel {
 				//添加连线
 				for(ForestNode child : root.childList) 
 					addForestLine(root, child, isAdd);
+			}
+			
+			if(primTreeNodeNeed != null){
+				primTreeNodeNeed.nodeToShape.put(root.content, root.shape);
 			}
 		}
 	}
@@ -300,75 +324,21 @@ public class ForestModel {
 		shapeList = model.getShapeList();
 	}
 	
-	private int primTreeLeft;
-	private int primTreeTop;
-	
-	public void setPrimTreeLeft(int primTreeLeft){
-		this.primTreeLeft = primTreeLeft;
-	}
-	
-	public void setPrimTreeTop(int primTreeTop){
-		this.primTreeTop = primTreeTop;
-	}
-	
-	private void graphicForestModel(ArrayList<ForestNode> roots, int level, PrimTreeNodeNeed primTreeNodeNeed){
-		if(maxLevel < level) maxLevel = level;
-		for(ForestNode root : roots){
-			if(root.childList.size() == 0){//叶子节点
-				++forestNodeCnt;
-				int circleLeft = primTreeLeft; 
-				circleLeft += (forestNodeCnt-1)*(ShapeSize.ForestModel.NODES_HOR_DIST + ShapeSize.ForestModel.CIRCLE_WIDTH);
-				int circleTop = primTreeTop;
-				circleTop += (level-1)*(ShapeSize.ForestModel.CIRCLE_HEIGHT + ShapeSize.ForestModel.LEVEL_DIST);
-				
-				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.ForestModel.CIRCLE_WIDTH, ShapeSize.ForestModel.CIRCLE_HEIGHT, root.content);
-				root.shape = shapeCircle;
-				
-			} else {//非叶子节点
-				graphicForestModel(root.childList, level+1, primTreeNodeNeed);
-				int circleLeft = (root.childList.get(0).shape.lx + root.childList.get(root.childList.size()-1).shape.lx)/2;
-				int circleTop = primTreeTop + (level-1)*(ShapeSize.ForestModel.CIRCLE_HEIGHT + ShapeSize.ForestModel.LEVEL_DIST);
-				DsCircle shapeCircle = new DsCircle(circleLeft, circleTop, ShapeSize.ForestModel.CIRCLE_WIDTH, ShapeSize.ForestModel.CIRCLE_HEIGHT, root.content);
-				root.shape = shapeCircle;
-				
-				//添加连线
-				for(ForestNode child : root.childList) 
-					addForestLine(root, child, primTreeNodeNeed);
-			}
-			primTreeNodeNeed.nodeToShape.put(root.content, root.shape);
-		}
-	}
-	
-	private void addForestLine(ForestNode T, ForestNode Tchild, PrimTreeNodeNeed primTreeNodeNeed){
-		int x1 = T.shape.lx + T.shape.lw/2;
-		int y1 = T.shape.ly + T.shape.lh/2;
-		int x2 = Tchild.shape.lx + Tchild.shape.lw/2;
-		int y2 = Tchild.shape.ly + Tchild.shape.lh/2;
-		
-		if(x1 == x2){
-			DsLine line = new DsLine(x1, y1+ShapeSize.ForestModel.CIRCLE_HEIGHT/2, x2, y2-ShapeSize.ForestModel.CIRCLE_HEIGHT/2, false);
-			primTreeNodeNeed.nodesLine.put(new TwoNodes(T.content, Tchild.content), line);
-			return ;
-		}
-		
-		//特殊处理， 不让线段画进  树结点的里面， (x1, y1), (x2, y2), (x1, y2)三点组成三角形，然后有
-		// (x1, y1)和 (x2, y2)线段的长度为L， 则有 x1+L*sin@ = x2, y1+L*cos@ = y2;
-		double L = Math.sqrt((double)((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1)));
-		double sinx = (x2-x1)/L/2;//除以2，因为ShapeSize.ForestModel.CIRCLE_WIDTH是直径，我们要半径
-		double cosx = (y2-y1)/L/2;
-		x1 = (int)(x1+ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
-		y1 = (int)(y1+ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
-		x2 = (int)(x2-ShapeSize.ForestModel.CIRCLE_WIDTH*sinx);
-		y2 = (int)(y2-ShapeSize.ForestModel.CIRCLE_WIDTH*cosx);
-		DsLine line = new DsLine(x1, y1, x2, y2, false);
-		primTreeNodeNeed.nodesLine.put(new TwoNodes(T.content, Tchild.content), line);
-	}
-	
-	public PrimTreeNodeNeed getForestModel(String data){
+	public PrimTreeNodeNeed primGetForestModel(String data){
 		String[] contents = data.split(";");
-		PrimTreeNodeNeed primTreeNodeNeed = new PrimTreeNodeNeed();
+		primTreeNodeNeed = new PrimTreeNodeNeed();
 		ArrayList<ForestNode> roots = buildForest(contents);
-		graphicForestModel(roots, 1, primTreeNodeNeed);
+		graphicForestModel(roots, 1, false);
 		return primTreeNodeNeed;
+	}
+	
+	public KruskalTreeNeed kruskalGetForestModel(String data){
+		String[] contents = data.split(";");
+		kruskalTreeNeed = new KruskalTreeNeed();
+		ArrayList<ForestNode> roots = buildForest(contents);
+		graphicForestModel(roots, 1, true);
+		kruskalTreeNeed.forestRight = this.forestRight;
+		kruskalTreeNeed.roots = roots;
+		return kruskalTreeNeed;
 	}
 }
