@@ -177,7 +177,7 @@ class TreeNode implements Comparable<TreeNode>{
 	}
 }
 
-class GraphicEdge{
+class GraphicEdge implements Comparable<GraphicEdge>{
 	public boolean isNewAdd = false;
 	public String weight;
 	public GraphicNode fromNode;
@@ -188,6 +188,18 @@ class GraphicEdge{
 		weight = null;
 		fromNode = null;
 		toNode = null;
+	}
+	
+	@Override
+	public int compareTo(GraphicEdge o) {
+		if(this.weight.length() == o.weight.length())
+			return this.weight.compareTo(o.weight);
+		return this.weight.length() - o.weight.length();
+	}
+
+	public GraphicEdge(String weight) {
+		super();
+		this.weight = weight;
 	}
 }
 

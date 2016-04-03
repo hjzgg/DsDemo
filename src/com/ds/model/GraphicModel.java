@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import com.ds.shape.DsCircle;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsSampleCircle;
 import com.ds.shape.DsSampleRect;
+import com.ds.shape.DsTipArrow;
 import com.ds.shape.Shape;
 import com.ds.size.ShapeSize;
 
@@ -213,6 +215,7 @@ public class GraphicModel{
         }
         Collections.sort(nodeList);
         model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+        model.setViewChanged();
 	}
 	
 	private DsLine createLine(DsCircle shapeOne, DsCircle shapeTwo){
@@ -691,8 +694,8 @@ public class GraphicModel{
 						shapeList.add(numTwo);
 					}
 					try {
-						Thread twu = new Thread(new NumberMoving(numOne, lineRV.getContentPoint().x, lineRV.getContentPoint().y));
-						Thread twv = new Thread(new NumberMoving(numTwo, lineRV.getContentPoint().x, lineRV.getContentPoint().y));
+						Thread twu = new Thread(new NumberMoving(numOne, lineRV.getContentPoint().x, lineRV.getContentPoint().y), "childThreadNumberMovingTWU");
+						Thread twv = new Thread(new NumberMoving(numTwo, lineRV.getContentPoint().x, lineRV.getContentPoint().y), "childThreadNumberMovingTWV");
 						twu.start(); twv.start();
 						twu.join();
 						twv.join();
@@ -742,6 +745,7 @@ public class GraphicModel{
 				}
 			}
 			flag = !flag;
+			model.setViewChanged();
 			delay(300);
 		}
 	}
@@ -1777,28 +1781,244 @@ public class GraphicModel{
 		createGraphicData(data);
 		if(nodeList.size() == 0) return;
 		if(this.isWeighted == false) return;
-		Map<TwoGraphicNode, Integer> g = new TreeMap<TwoGraphicNode, Integer>();
-		for(GraphicNode from : nodeList){
-			for(GraphicNode to : nodeList){
-				g.put(new TwoGraphicNode(from, to), Integer.MAX_VALUE);
-			}
-		}
+		//创建消息提示
+		DsSampleRect tipOneRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "节点个数尽量少,");
+		DsSampleRect tipTwoRect = new DsSampleRect(swidth, ShapeSize.GraphicModel.TOP_MARGIN*2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH*10, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, "否则等待时间会过长!");
+		tipOneRect.color = tipTwoRect.color = model.getObserverPanel().getBackground();
+		tipOneRect.fontSize = tipTwoRect.fontSize = 20;
+		shapeList.add(tipOneRect);
+		shapeList.add(tipTwoRect);
+		//创建三个节点，用来指示距离更新的演示
+		DsCircle circleV = new DsCircle(swidth, ShapeSize.GraphicModel.TOP_MARGIN*2+ShapeSize.GraphicModel.SMALL_RECT_HEIGHT*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleU = new DsCircle(swidth, circleV.ly+circleV.lh*4, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsCircle circleR = new DsCircle(circleU.lx+circleU.lw*3, circleU.ly+circleU.lh*2, ShapeSize.GraphicModel.CIRCLE_WIDTH, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		DsSampleRect compareRect = new DsSampleRect(circleR.lx, circleR.ly-circleR.lh*3, ShapeSize.GraphicModel.CIRCLE_WIDTH*4, ShapeSize.GraphicModel.CIRCLE_HEIGHT, "");
+		compareRect.color = Color.CYAN;
+		shapeList.add(compareRect);
+		DsLine lineUV = createLine(circleU, circleV);
+		lineUV.weight = "∞";
+		lineUV.setDefaultLine(new Point(lineUV.x1+5, lineUV.y1));
+		shapeList.add(lineUV);
+		DsLine lineRU = createLine(circleR, circleU);
+		lineRU.weight = "∞";
+		lineRU.setDefaultLine(new Point(lineRU.x1+5, lineRU.y1));
+		shapeList.add(lineRU);
+		DsLine lineRV = createLine(circleR, circleV);
+		lineRV.weight = "∞";
+		lineRV.setDefaultLine(new Point(lineRV.x1+5, lineRV.y1));
+		shapeList.add(lineRV);
+		circleR.color = Color.WHITE;
+		shapeList.add(circleR);
+		circleU.color = Color.GREEN;
+		shapeList.add(circleU);
+		circleV.color = Color.CYAN;
+		shapeList.add(circleV);
+		swidth += circleR.lx + circleR.lw*2; 
+		model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		
+		//k，i，j三个节点的标记
+		DsSampleRect[] tipK = new DsSampleRect[2];
+		tipK[0] = new DsSampleRect(-100, -100, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "k");
+		tipK[1] = new DsSampleRect(circleU.lx-circleU.lw/2, circleU.ly-circleU.lh/2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "k");
+		tipK[1].color = tipK[0].color = model.getObserverPanel().getBackground();
+		tipK[0].fontColor = tipK[1].fontColor = Color.ORANGE;
+		shapeList.addAll(0, Arrays.asList(tipK));
+		DsSampleRect[] tipI = new DsSampleRect[2];
+		tipI[0] = new DsSampleRect(-100, -100, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "i");
+		tipI[1] = new DsSampleRect(circleR.lx-circleR.lw/2, circleR.ly-circleR.lh/2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "i");
+		tipI[1].color = tipI[0].color = model.getObserverPanel().getBackground();
+		tipI[0].fontColor = tipI[1].fontColor = Color.ORANGE;
+		shapeList.addAll(0, Arrays.asList(tipI));
+		DsSampleRect[] tipJ = new DsSampleRect[2];
+		tipJ[0] = new DsSampleRect(-100, -100, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "j");
+		tipJ[1] = new DsSampleRect(circleV.lx-circleV.lw/2, circleV.ly-circleV.lh/2, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_CIRCLE_HEIGHT, "j");
+		tipJ[1].color = tipJ[0].color = model.getObserverPanel().getBackground();
+		tipJ[0].fontColor = tipJ[1].fontColor = Color.ORANGE;
+		shapeList.addAll(0, Arrays.asList(tipJ));
+		
+		Map<TwoGraphicNode, GraphicEdge> g = new TreeMap<TwoGraphicNode, GraphicEdge>();
+		//选中的边
+		List<DsLine> selectedLine = new ArrayList<DsLine>();
+		//未选中的边
+		List<DsLine> noSelectedLine = new ArrayList<DsLine>();
 		
 		for(GraphicNode node : nodeList){
-			TwoGraphicNode x = new TwoGraphicNode(node, node);
-			if(g.get(x) == Integer.MAX_VALUE)
-				g.put(x, 0);
+			 for(GraphicEdge edge : node.neighbourEdges){
+				 TwoGraphicNode twoNodes = new TwoGraphicNode(edge.fromNode, edge.toNode);
+				 if(g.containsKey(twoNodes)){
+					 if(g.get(twoNodes).compareTo(edge) > 0)
+						 g.put(twoNodes, edge);
+				 } else {
+					 g.put(twoNodes, edge);
+				 }
+			 }
+		}
+		for(GraphicNode node : nodeList){
+			 for(GraphicEdge edge : node.neighbourEdges){
+				TwoGraphicNode twoNodes = new TwoGraphicNode(edge.fromNode, edge.toNode);
+				if(g.containsKey(twoNodes) && g.get(twoNodes)==edge){
+					selectedLine.addAll(edge.lineList);
+				} else {
+					noSelectedLine.addAll(edge.lineList);
+				}
+			 }
 		}
 		
-		for(GraphicNode k : nodeList)
-			for(GraphicNode i : nodeList)
-				for(GraphicNode j : nodeList){
+		//选中的线闪烁，没有选中的线消失
+		lineAppearAndDisAppear(selectedLine.toArray(new DsLine[]{}));
+		List<Thread> threadList = new ArrayList<Thread>();
+		for(int i=0; i < noSelectedLine.size(); ++i) {
+			Thread thread = new Thread(new DynamicLineDisAppear(noSelectedLine.get(i)), "childThreadNoSelectedLine" + i);
+			thread.start();
+			threadList.add(thread);
+		}
+		
+		try {
+			for(Thread thread : threadList)
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		//二维数组，直观的显示各点间的最短距离
+		int leftDist = ShapeSize.GraphicModel.LEFT_MARGIN;
+		int topDist = sheight;
+		ArrayList<ArrayList<DsSampleRect> > arrDist = new ArrayList<ArrayList<DsSampleRect>>();
+		for(int i=0; i<=nodeList.size(); ++i){
+			arrDist.add(new ArrayList<DsSampleRect>());
+			leftDist = ShapeSize.GraphicModel.LEFT_MARGIN;
+			sheight += ShapeSize.GraphicModel.CIRCLE_HEIGHT*2;
+			for(int j=0; j<=nodeList.size(); ++j){
+				DsSampleRect rect = new DsSampleRect(leftDist, topDist, ShapeSize.GraphicModel.SMALL_RECT_WIDTH, ShapeSize.GraphicModel.SMALL_RECT_HEIGHT, null);
+				rect.color = model.getObserverPanel().getBackground();
+				rect.fontSize = 20;
+				if(i==0 && j==0){
+					rect.content = null;
+				} else if(i == 0 || j == 0){
+					if(i == 0 && j != 0) rect.content = nodeList.get(j-1).content; 
+					if(j == 0 && i != 0) rect.content = nodeList.get(i-1).content;
+					rect.color = Color.RED;
+				} else {
+					TwoGraphicNode twoNodes = new TwoGraphicNode(nodeList.get(i-1), nodeList.get(j-1));
+					rect.content = g.containsKey(twoNodes) ? g.get(twoNodes).weight : "∞";
+				}
+				synchronized (Shape.class) {shapeList.add(rect);}
+				arrDist.get(i).add(rect);
+				leftDist += ShapeSize.GraphicModel.SMALL_RECT_WIDTH;
+			}
+			topDist += ShapeSize.GraphicModel.SMALL_RECT_HEIGHT;
+			sheight = topDist+ShapeSize.GraphicModel.CIRCLE_HEIGHT*2;
+		}
+		model.getObserverPanel().setPreferredSize(new Dimension(swidth, sheight));
+		model.setViewChanged();
+
+		for(GraphicNode k : nodeList) {
+			boolean flagK = true;
+			//移动标签
+			tipK[0].lx = k.shape.lx-k.shape.lw/2;
+			tipK[0].ly = k.shape.ly-k.shape.lh/2;
+			k.shape.color = circleU.color;
+			circleU.content = k.content;
+			for(int ii=0; ii < nodeList.size(); ++ii) {
+				GraphicNode i = nodeList.get(ii);
+				if(k == i) continue;
+				//移动标签
+				tipI[0].lx = i.shape.lx-i.shape.lw/2;
+				tipI[0].ly = i.shape.ly-i.shape.lh/2;
+				boolean flagI = true;
+				i.shape.color = circleR.color;
+				circleR.content = i.content;
+				for(int jj=0; jj < nodeList.size(); ++jj){
+					GraphicNode j = nodeList.get(jj);
+					if(i==j || k==j) continue;
+					//移动标签
+					tipJ[0].lx = j.shape.lx-j.shape.lw/2;
+					tipJ[0].ly = j.shape.ly-j.shape.lh/2;
+					adjustView(model.getObserverPanel(), j.shape.lx, j.shape.ly);
+					j.shape.color = circleV.color;
+					circleV.content = j.content;
+					//闪烁效果
+					DsCircle[] circles = null;
+					if(flagK) circles = new DsCircle[]{k.shape, i.shape, j.shape};
+					else if(flagI)	circles = new DsCircle[]{i.shape, j.shape};
+					else circles = new DsCircle[]{j.shape};
+					circleAppearAndDisappear(circles);
+					
 					TwoGraphicNode ik = new TwoGraphicNode(i, k);
 					TwoGraphicNode kj = new TwoGraphicNode(k, j);
 					TwoGraphicNode ij = new TwoGraphicNode(i, j);
-					if(g.get(ij) > g.get(ik)+g.get(kj))
-						g.put(ij, g.get(ik)+g.get(kj));
+					int ikw = g.containsKey(ik) ? Integer.valueOf(g.get(ik).weight) : Integer.MAX_VALUE/2;
+					int kjw = g.containsKey(kj) ? Integer.valueOf(g.get(kj).weight) : Integer.MAX_VALUE/2;
+					int ijw = g.containsKey(ij) ? Integer.valueOf(g.get(ij).weight) : Integer.MAX_VALUE/2;
+					lineUV.weight = g.containsKey(kj) ? String.valueOf(kjw) : "∞";
+					lineRU.weight = g.containsKey(ik) ? String.valueOf(ikw) : "∞";
+					lineRV.weight = g.containsKey(ij) ? String.valueOf(ijw) : "∞";
+					
+					if(ijw > ikw+kjw){
+						compareRect.content = lineRU.weight + "+" + lineUV.weight + " < " + lineRV.weight;
+					} else {
+						compareRect.content = lineRU.weight + "+" + lineUV.weight + " >= " + lineRV.weight;
+					}
+					model.setViewChanged();
+					lineAppearAndDisAppear(new DsLine[]{lineUV, lineRU, lineRV});
+					if(ijw > ikw+kjw){
+						if(g.containsKey(ij)) {
+							g.get(ij).weight = String.valueOf(ikw + kjw);
+						} else { 
+							g.put(ij, new GraphicEdge(String.valueOf(ikw + kjw)));
+						}
+						//动态过度
+						DsSampleCircle numOne = new DsSampleCircle(lineUV.getContentPoint().x, lineUV.getContentPoint().y, ShapeSize.GraphicModel.CIRCLE_WIDTH/2, ShapeSize.GraphicModel.CIRCLE_HEIGHT/2, lineUV.weight);
+						numOne.fontSize = 25;
+						numOne.setTransparent(true);
+						DsSampleCircle numTwo = new DsSampleCircle(lineRU.getContentPoint().x, lineRU.getContentPoint().y, ShapeSize.GraphicModel.CIRCLE_WIDTH/2, ShapeSize.GraphicModel.CIRCLE_HEIGHT/2, lineRU.weight);
+						numTwo.fontSize = 25;
+						numTwo.setTransparent(true);
+						synchronized (Shape.class) {
+							shapeList.add(numOne);
+							shapeList.add(numTwo);
+						}
+						try {
+							Thread twu = new Thread(new NumberMoving(numOne, lineRV.getContentPoint().x, lineRV.getContentPoint().y), "childThreadNumberMovingTWU");
+							Thread twv = new Thread(new NumberMoving(numTwo, lineRV.getContentPoint().x, lineRV.getContentPoint().y), "childThreadNumberMovingTWV");
+							twu.start(); twv.start();
+							twu.join();
+							twv.join();
+							lineRV.weight = g.get(ij).weight;
+							lineAppearAndDisAppear(new DsLine[]{lineRV});
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						adjustView(model.getObserverPanel(), arrDist.get(ii+1).get(0).lx, arrDist.get(ii+1).get(0).ly);
+						tipForUpdate(new DsSampleRect[]{arrDist.get(ii+1).get(0), arrDist.get(0).get(jj+1), arrDist.get(ii+1).get(jj+1)});
+						arrDist.get(ii+1).get(jj+1).content = g.get(ij).weight;
+						model.setViewChanged();
+						delay(1000);
+					}
+					j.shape.color = Color.RED;
+					flagK = flagI = false;
 				}
+				i.shape.color = Color.RED;
+			}
+			k.shape.color = Color.RED;
+		}
+	}
+	
+	private void circleAppearAndDisappear(DsCircle[] circles){
+		boolean flag = true;
+		for(int i=1; i<=4; ++i){
+			if(flag){
+				synchronized (Shape.class) {
+					shapeList.removeAll(Arrays.asList(circles));
+				}
+			} else {
+				synchronized (Shape.class) {
+					shapeList.addAll(Arrays.asList(circles));
+				}
+			}
+			flag = !flag;
+			model.setViewChanged();
+			delay(300);
+		}
 	}
 	
 	class RootRunning implements Runnable{
@@ -1838,13 +2058,9 @@ public class GraphicModel{
 }
 
 class TwoGraphicNode implements Comparable<TwoGraphicNode>{
-	public GraphicNode from;
-	public GraphicNode to;
 	private String newContent;
 	public TwoGraphicNode(GraphicNode from, GraphicNode to) {
 		super();
-		this.from = from;
-		this.to = to;
 		newContent = from.content + to.content;
 	}
 	@Override

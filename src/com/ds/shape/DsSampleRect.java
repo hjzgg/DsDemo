@@ -6,6 +6,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 public class DsSampleRect extends DsRect implements Cloneable{
+	public Color fontColor = Color.BLACK;
 	@Override
 	public void drawShape(Graphics g) {
 		g.setColor(color == null ? Color.RED : color);
@@ -15,7 +16,7 @@ public class DsSampleRect extends DsRect implements Cloneable{
 		FontMetrics fontMetrics = g.getFontMetrics();
 		int contentH = fontMetrics.getLeading()-fontMetrics.getAscent();
 		int contentW = fontMetrics.stringWidth(content);
-		g.setColor(Color.BLACK);
+		g.setColor(fontColor);
 		g.drawString(content, lx+(lw-contentW)/2, ly+(lh-contentH)/2);
 	}
 
