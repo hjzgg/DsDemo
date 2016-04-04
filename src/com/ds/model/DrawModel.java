@@ -1,8 +1,6 @@
 package com.ds.model;
 
-import java.awt.Color;
 import java.awt.Container;
-import java.awt.dnd.DragSourceListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +11,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 
 import com.ds.panel.DrawPanel;
 import com.ds.shape.DsBIndexedTreeRect;
@@ -24,7 +20,6 @@ import com.ds.shape.DsCrossList;
 import com.ds.shape.DsGListRect;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsListRect;
-import com.ds.shape.DsNumberRect;
 import com.ds.shape.DsRect;
 import com.ds.shape.DsSegTreeRect;
 import com.ds.shape.Shape;

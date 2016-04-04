@@ -12,10 +12,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-
-import sun.net.www.content.image.png;
 
 import com.ds.shape.DsCircle;
 import com.ds.shape.DsHuffmanCircle;
@@ -163,19 +160,6 @@ public class HuffmanTreeModel {
 		}
 	}
 	
-	private void tipForSearched(DsRect[] shapes){
-		boolean flag = true;
-		Color color = null;
-		for(int k=1; k<=4; ++k){
-			color = flag ? Color.GREEN : Color.RED;
-			for(DsRect shape : shapes)
-				shape.color = color;
-			flag = !flag;
-			model.setViewChanged();
-			delay(300);
-		}
-	}
-	
 	private void tipForSearched(DsNumberRect[] shapes){
 		boolean flag = true;
 		Color color = null;
@@ -230,9 +214,6 @@ public class HuffmanTreeModel {
 			shapeList.add(right);
 			shapeList.add(down);
 		}
-		
-		private int lx = ShapeSize.HuffmanTreeModel.ARRAY_TREE_LD + ShapeSize.HuffmanTreeModel.LEFT_MARGIN;
-		private int ly = ShapeSize.HuffmanTreeModel.TREE_TOP_MARGIN + ShapeSize.HuffmanTreeModel.LEFT_MARGIN;
 		
 		public void addShowingNode(HuffmanNode node){
 			int listH = left.y2 - left.y1;

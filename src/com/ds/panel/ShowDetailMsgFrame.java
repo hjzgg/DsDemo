@@ -17,7 +17,8 @@ public class ShowDetailMsgFrame extends JFrame {
     private String msg;
     private void initGUI(){
     	Font font = new Font("Î¢ÈíÑÅºÚ Light", Font.PLAIN, 15);
-    	FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
+    	@SuppressWarnings("deprecation")
+		FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
     	int msgW = fontMetrics.stringWidth(msg);
     	int msgH = fontMetrics.getHeight();
     	setBounds(0, 0, msgW+10, msgH+10);

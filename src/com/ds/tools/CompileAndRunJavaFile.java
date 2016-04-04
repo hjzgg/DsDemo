@@ -132,9 +132,10 @@ public class CompileAndRunJavaFile {
 		code = "import java.util.*;\n" + code;
 		try {
 			//delete Main.class
-			File mainClass = new File(getClassOutput() + "Main.class");
-			if(mainClass.exists())
+			File mainClass = new File(getClassOutput() + className + ".class");
+			if(mainClass.exists()) {
 				mainClass.delete();
+			}
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 			// define the diagnostic object, which will be used to save the
 	        // diagnostic information
@@ -150,9 +151,12 @@ public class CompileAndRunJavaFile {
 			
 			if (result) {
 				Runtime runtime = Runtime.getRuntime();
-		    	Class<?> clazz = Class.forName(className);
-		    	Method method = clazz.getMethod(methodName, new Class<?>[]{String[].class});
-		    	
+				MyClassLoader myClassLoader = new MyClassLoader("MyClassLoader");
+				myClassLoader.setPath(MyClassLoader.getSystemClassLoader().getResource("").getPath());
+		    	Class<?> clazz = myClassLoader.loadClass(className);
+		    	OutClassMsg ocm = new OutClassMsg();
+		    	ocm.getClassMessage(clazz);
+		    	Method method = clazz.getMethod(methodName, String[].class);
 		    	//重置输入流， 需要存放数据文件的文件名
 		    	fis = new FileInputStream(new File("./inputs/" + selectTest + ".txt"));
 				System.setIn(fis);
@@ -164,7 +168,7 @@ public class CompileAndRunJavaFile {
 		    	long startFreeMemory = runtime.freeMemory();//Java 虚拟机中的空闲内存量
 				//执行时间也是无法知道，因为dos执行java命令，程序无法知道它到底执行到那里了，两个进程，互不了解
 				long startCurrentTime = System.currentTimeMillis();//获取系统当前时间
-		    	method.invoke(null, new Object[]{null});
+		    	method.invoke(null, (Object)null);
 		    	long endCurrentTime = System.currentTimeMillis();
 				long endFreeMemory = runtime.freeMemory();
 				//内存的使用情况，不是很精确

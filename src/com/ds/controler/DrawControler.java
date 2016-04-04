@@ -391,7 +391,6 @@ public class DrawControler {
 	
 	public class CrossListControler{
 		private CrossListModel crossListModel = null;
-		private String tmpData = "4 7;1 2;4 2;4 1;1 3;3 1;3 4;4 3";
 		private boolean isDirected = false;
 		public void setIsDirected(boolean isDirected) {
 			this.isDirected = isDirected;
@@ -463,7 +462,6 @@ public class DrawControler {
 	
 	public class BinaryIndexedTreeControler{
 		private BinaryIndexedTreeModel binaryIndexedTreeModel = null;
-		private String tmpData = "2 3 5 4 6 1 5 10 2 3 4 5";
 		private String initDialog(String title){
 			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
 			dialog.setDataDemoContent("2 3 5 4 6 1 5 10 2 3 4 5");

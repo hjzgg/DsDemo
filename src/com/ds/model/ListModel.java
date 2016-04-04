@@ -2,9 +2,7 @@ package com.ds.model;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,17 +10,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JLabel;
 
-import sun.java2d.pipe.ShapeDrawPipe;
-
-import com.ds.controler.DrawControler;
 import com.ds.panel.DrawPanel;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsListRect;
-import com.ds.shape.DsRect;
 import com.ds.shape.DsTipArrow;
 import com.ds.shape.Shape;
 import com.ds.size.ShapeSize;
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * @author hjzgg

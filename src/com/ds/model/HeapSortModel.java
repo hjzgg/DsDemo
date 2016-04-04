@@ -14,7 +14,6 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.management.timer.TimerMBean;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -25,7 +24,6 @@ import com.ds.shape.DsRect;
 import com.ds.shape.DsTipArrow;
 import com.ds.shape.Shape;
 import com.ds.size.ShapeSize;
-import com.sun.jmx.snmp.tasks.Task;
 
 /**
  * @author 峻峥

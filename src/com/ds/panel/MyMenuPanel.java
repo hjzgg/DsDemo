@@ -35,6 +35,7 @@ public class MyMenuPanel extends JPanel{
 		this.add(stopBtn);
 		
 		suspendBtn.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(modelThread == null) {
@@ -107,6 +108,7 @@ public class MyMenuPanel extends JPanel{
 		});
 		
 		resumeBtn.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				resumeBtn.setEnabled(false);
@@ -129,6 +131,7 @@ public class MyMenuPanel extends JPanel{
 		});
 		
 		stopBtn.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				modelThread.stop();

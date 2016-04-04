@@ -26,7 +26,6 @@ import com.ds.tools.MyTimer;
 public class MainFrame extends JFrame{
 	private JTabbedPane pane = new JTabbedPane();
     private final String[] tabText = {"模拟系统", "练习系统", "用户交流"};
-    private final String[] toolTipText = {"Simulation_System", "Practice_System", "User_Communication"};
     private final JPanel[] contentPanels = new JPanel[tabText.length];
     private final JPanel[] tabComponents = new JPanel[tabText.length];
     private final JMenuItem[] functionItems = new JCheckBoxMenuItem[tabText.length];
@@ -71,7 +70,7 @@ public class MainFrame extends JFrame{
        }
     }
    
-    private Class[] mainPanels = {FunctionPanel.class, EditCodeAndBrowse.class};
+    private Class<?>[] mainPanels = {FunctionPanel.class, EditCodeAndBrowse.class};
     //创建标签内容部分
     private JPanel createContent(int index) {
 		if(index >= mainPanels.length) return null;

@@ -9,9 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.GeneralPath;
 
-import com.ds.size.ShapeSize;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.LineInputStream;
-
 //无箭头或者有箭头的线
 public class DsLine implements Shape, Comparable<DsLine>, Cloneable{
 	public int x1, y1, x2, y2;

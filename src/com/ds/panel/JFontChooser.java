@@ -31,7 +31,6 @@ public class JFontChooser extends JPanel {
     private int current_fontStyle = Font.PLAIN;//当前的字样,默认常规.
     private int current_fontSize = 9;//当前字体大小,默认9号.
     private Color current_color = Color.BLACK;//当前字色,默认黑色.
-    private Component parent;//弹出dialog的父窗体.
     private JDialog dialog;//用于显示模态的窗体
     private MyFont myfont;//带有Color的字体.
     private JLabel lblFont;//选择字体的LBL
@@ -50,8 +49,8 @@ public class JFontChooser extends JPanel {
     private JScrollPane spSize;
     private JLabel lblShow;//显示效果的label.
     private JPanel showPan;//显示框.
-    private Map sizeMap;//字号映射表.
-    private Map colorMap;//字着色映射表.
+    private Map<String, Integer> sizeMap;//字号映射表.
+    private Map<String, Color> colorMap;//字着色映射表.
     
     //定义变量_结束________________
     public JFontChooser(MyFont curFont) {
@@ -76,7 +75,7 @@ public class JFontChooser extends JPanel {
 			"初号", "小初", "一号", "小一", "二号", "小二", "三号", "小三", "四号", "小四", "五号", "小五", "六号", "小六", "七号", "八号"
     	};
     	int sizeVal[] = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 42, 36, 26, 24, 22, 18, 16, 15, 14, 12, 11, 9, 8, 7, 6, 5};
-    	sizeMap = new HashMap();
+    	sizeMap = new HashMap<String, Integer>();
     	for (int i = 0; i < sizeStr.length; ++i) {
     		sizeMap.put(sizeStr[i], sizeVal[i]);
     	}
@@ -90,7 +89,7 @@ public class JFontChooser extends JPanel {
     	Color[] colorVal = new Color[]{
     			Color.BLACK, Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW
     	};
-    	colorMap = new HashMap();
+    	colorMap = new HashMap<String, Color>();
     	for (int i = 0; i < colorStr.length; i++) {
     		colorMap.put(colorStr[i], colorVal[i]);
     	}
@@ -180,7 +179,7 @@ public class JFontChooser extends JPanel {
     	lstSize.addListSelectionListener(new ListSelectionListener() {
     		
     		public void valueChanged(ListSelectionEvent e) {
-    			current_fontSize = (Integer) sizeMap.get(lstSize.getSelectedValue());
+    			current_fontSize = sizeMap.get(lstSize.getSelectedValue());
     			txtSize.setText(String.valueOf(current_fontSize));
     			lblShow.setFont(new Font(current_fontName, current_fontStyle, current_fontSize));
     		}
@@ -189,7 +188,7 @@ public class JFontChooser extends JPanel {
     	cbColor.addActionListener(new ActionListener() {
     		
     		public void actionPerformed(ActionEvent e) {
-    			current_color = (Color) colorMap.get(cbColor.getSelectedItem());
+    			current_color = colorMap.get(cbColor.getSelectedItem());
     			lblShow.setForeground(current_color);
     		}
     	});

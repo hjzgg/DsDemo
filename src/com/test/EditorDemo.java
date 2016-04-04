@@ -502,7 +502,7 @@ class DecorateKeyWords{
 	 private static ListIterator<WordNode> split(String str,String regex) {  
 		 Pattern p = Pattern.compile(regex);  
 		 Matcher m = p.matcher(str); 
-		 List<WordNode> nodeList = new ArrayList();  
+		 List<WordNode> nodeList = new ArrayList<WordNode>();  
 		 int strStart = 0; // 分割单词的首位置  
 		 String s; // 分割的单词  
 		 WordNode wn; // StringNode节点  

@@ -123,7 +123,7 @@ public class EditCodeAndBrowse extends JPanel{
 					resultPane.setText("编译错误: " + cr.getCE());
 				} else if(cr.isRunningError()) {
 					resultPane.setText("运行错误: " + cr.getError());
-				}
+				}  
 			}
 		});
 		
@@ -435,7 +435,7 @@ class EditCodePane extends JPanel{
 		 return toolBar;  //返回工具栏
 	 }
 	 
-	 private void adjustLinePane(){
+	 private synchronized void adjustLinePane(){
 		 try {
 			LineNumberReader lnr = new LineNumberReader(new StringReader(textPane.getText()));
 			lnr.skip(Long.MAX_VALUE);
@@ -688,7 +688,7 @@ class DecorateKeyWords{
 	 private static ListIterator<WordNode> split(String str,String regex) {  
 		 Pattern p = Pattern.compile(regex);  
 		 Matcher m = p.matcher(str); 
-		 List<WordNode> nodeList = new ArrayList();  
+		 List<WordNode> nodeList = new ArrayList<WordNode>();  
 		 int strStart = 0; // 分割单词的首位置  
 		 String s; // 分割的单词  
 		 WordNode wn; // StringNode节点  

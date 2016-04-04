@@ -8,11 +8,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-
 
 import com.ds.panel.DrawPanel;
 import com.ds.shape.DsCircle;

@@ -92,10 +92,11 @@ public class TreeMenuControler {
 	}
 	
 	private static DefaultTreeModel treeModel;
+	@SuppressWarnings("unused")
 	private static void buildTitleFiles(TreeNode root){
 		if(root.getChildCount() > 0){
-			for(Enumeration<TreeNode> e = root.children(); e.hasMoreElements(); ){
-				buildTitleFiles(e.nextElement());
+			for(Enumeration<?> e = root.children(); e.hasMoreElements(); ){
+				buildTitleFiles((TreeNode)e.nextElement());
 			}
 		} else { //叶子节点
 			TreePath path = new TreePath(treeModel.getPathToRoot(root));
@@ -115,6 +116,7 @@ public class TreeMenuControler {
 	public static void main(String[] args){
 		JTree tree = getTreeMenu();
 		treeModel = (DefaultTreeModel)tree.getModel();
-		buildTitleFiles((TreeNode)tree.getModel().getRoot());
+		//建立文件
+		//buildTitleFiles((TreeNode)tree.getModel().getRoot());
 	}
 }

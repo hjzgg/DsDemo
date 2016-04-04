@@ -10,7 +10,6 @@ import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;

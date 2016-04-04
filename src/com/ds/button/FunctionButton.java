@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 
 import com.ds.tools.MyTimer;
 
-
 public class FunctionButton extends JButton{
 	private ImageIcon icon = null;
 	private int imageIndex = 0;

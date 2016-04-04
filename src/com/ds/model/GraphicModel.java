@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import com.ds.shape.DsCircle;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsSampleCircle;
 import com.ds.shape.DsSampleRect;
-import com.ds.shape.DsTipArrow;
 import com.ds.shape.Shape;
 import com.ds.size.ShapeSize;
 
@@ -513,6 +511,7 @@ public class GraphicModel{
 	}
 	
 	//迪杰斯特拉算法
+	@SuppressWarnings("deprecation")
 	public void dijkstra(String data){
 		createGraphicData(data);
 		if(nodeList.size() == 0) return;
@@ -886,6 +885,7 @@ public class GraphicModel{
 	}
 	
 	//prim算法
+	@SuppressWarnings("deprecation")
 	public void prim(String data){
 		createGraphicData(data);
 		if(nodeList.size() == 0) return;

@@ -6,8 +6,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
 
-import javax.swing.JLabel;
-
 //»­Ô²
 public class DsCircle implements Shape, Cloneable{
 	public int lx, ly, lw, lh;

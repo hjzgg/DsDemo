@@ -22,8 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.sun.media.sound.ModelTransform;
-
 public class MyDialog extends JDialog {
 	//文本的字体
 	private Font myFont = new Font("宋体", Font.PLAIN, 30);

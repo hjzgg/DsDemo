@@ -141,19 +141,6 @@ public class ShellInsertSortModel {
 		}
 	}
 	
-	private void tipForSearched(DsRect[] shapes){
-		boolean flag = true;
-		Color color = null;
-		for(int k=1; k<=4; ++k){
-			color = flag ? Color.GREEN : Color.RED;
-			for(DsRect shape : shapes)
-				shape.color = color;
-			flag = !flag;
-			model.setViewChanged();
-			delay(300);
-		}
-	}
-	
 	private void delay(int time){
 		try {
 			TimeUnit.MILLISECONDS.sleep(time);
