@@ -115,8 +115,10 @@ public class CompileAndRunJavaFile {
 	private static final String methodName = "main";
 	private String getClassOutput(){
 		//设置class文件的存放位置
-		if(System.getProperty("java.class.path").contains("bin")) return "bin/";
-		else return "./";
+		String path = System.getProperty("java.class.path");
+		if(path.contains("bin"))
+			path = path.substring(0, path.indexOf("bin")) + "myClass/";
+		return path;
 	}
 	
 	public void compileAndRunJavaFile(String code, String selectTest){
@@ -152,10 +154,11 @@ public class CompileAndRunJavaFile {
 			if (result) {
 				Runtime runtime = Runtime.getRuntime();
 				MyClassLoader myClassLoader = new MyClassLoader("MyClassLoader");
-				myClassLoader.setPath(MyClassLoader.getSystemClassLoader().getResource("").getPath());
+				myClassLoader.setPath(getClassOutput());
 		    	Class<?> clazz = myClassLoader.loadClass(className);
-		    	OutClassMsg ocm = new OutClassMsg();
-		    	ocm.getClassMessage(clazz);
+//		    	输出生成类的信息
+//		    	OutClassMsg ocm = new OutClassMsg();
+//		    	ocm.getClassMessage(clazz);
 		    	Method method = clazz.getMethod(methodName, String[].class);
 		    	//重置输入流， 需要存放数据文件的文件名
 		    	fis = new FileInputStream(new File("./inputs/" + selectTest + ".txt"));
@@ -198,6 +201,10 @@ public class CompileAndRunJavaFile {
 		    		outMsg = "Accept, 全部正确!\n" + "程序输出:\n" + outRet.toString();
 		    	else 
 		    		outMsg = "Error, 输出有误!\n" + "程序输出:\n" + outRet.toString();
+		    	
+		    	method = null;
+		    	clazz = null;
+		    	myClassLoader = null;
 			} else {
 				isCompilerError = true;
 				//打印编译的错误信息
