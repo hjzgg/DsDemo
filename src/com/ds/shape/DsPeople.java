@@ -3,6 +3,8 @@ package com.ds.shape;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.TimerTask;
 
@@ -16,6 +18,7 @@ import com.ds.tools.MyTimer;
 public class DsPeople extends JLabel{
 	private ImageIcon icon = null;
 	private int dir = DIR_LEFT;
+	private String number;
 	private int imageIndex = 0;
 	public static final int DIR_LEFT = 0;
 	public static final int DIR_RIGHT = 1;
@@ -29,23 +32,30 @@ public class DsPeople extends JLabel{
 	protected void paintComponent(Graphics g) {
 		if(icon == null)
 			icon = new ImageIcon("image/queuOfPeople/people_" + dirs[dir] + "0.gif");
-		g.drawImage(icon.getImage(), 5, 5, this.getWidth()-10, this.getHeight()-10, null);
+		g.setFont(new Font("»ªÎÄÐÐ¿¬", Font.BOLD, 20));
+		FontMetrics fontMetrics = g.getFontMetrics();
+		int contentH = fontMetrics.getHeight();
+		int contentW = fontMetrics.stringWidth(number);
+		g.setColor(Color.BLACK);
+		g.drawString(number, (this.getWidth()-contentW)/2, contentH/2);
+		g.drawImage(icon.getImage(), 5, contentH/2, this.getWidth()-10, this.getHeight()-10, null);
 		super.paintComponent(g);
 	}
 	
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.setLayout(new FlowLayout());
-		DsPeople people = new DsPeople(3);
-		people.setPreferredSize(new Dimension(45, 60));
+		DsPeople people = new DsPeople(2, "11");
+		people.setPreferredSize(new Dimension(50, 80));
 		frame.add(people);
 		frame.setSize(new Dimension(400, 400));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
 
-	public DsPeople(int dir) {
+	public DsPeople(int dir, String number) {
         setForeground(Color.WHITE);
+        this.number = number;
 		this.dir = dir;
 		MyTimer.getTimer().schedule(new TimerTask() {
 			@Override
