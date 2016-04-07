@@ -71,6 +71,13 @@ public class MyClassLoader extends ClassLoader {
         }
         return data;
     }
+    
+    @Override
+    public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
+    	System.out.println(name);
+    	byte[] data = loaderClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    };
 
     /**
      * 获取Class对象
@@ -84,9 +91,10 @@ public class MyClassLoader extends ClassLoader {
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
     	for(int i=0; i<5; i++){
 	        MyClassLoader loader1 = new MyClassLoader("MyClassLoader");
-	        String path = new File(MyClassLoader.getSystemClassLoader().getResource("").getPath()).getParent();
-	        loader1.setPath(path+"/myClass/");
+	        //String path = new File(MyClassLoader.getSystemClassLoader().getResource("").getPath()).getParent();
+	        loader1.setPath("myClass/");
 	        Class<?> clazz = loader1.loadClass("Main");
+	        System.out.println(clazz.getName());
     	}
     }
 }

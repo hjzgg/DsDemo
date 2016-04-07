@@ -119,6 +119,8 @@ public class CompileAndRunJavaFile {
 		if(path.contains("bin"))
 			path = path.substring(0, path.indexOf("bin")) + "myClass/";
 		return path;
+		//直接返回就可以啊。
+		//return "myClass/";
 	}
 	
 	public void compileAndRunJavaFile(String code, String selectTest){
