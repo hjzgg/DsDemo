@@ -33,6 +33,7 @@ import com.ds.model.SampleInsertSortModel;
 import com.ds.model.SegmentTreeModel;
 import com.ds.model.SelectiveSortModel;
 import com.ds.model.ShellInsertSortModel;
+import com.ds.model.StackModel;
 import com.ds.model.StringModel;
 import com.ds.model.UnionFindSetModel;
 import com.ds.panel.DrawPanel;
@@ -114,6 +115,18 @@ public class DrawControler {
 		msgLabel.setForeground(Color.RED);
 		mainMsgPanel.add(msgLabel, BorderLayout.NORTH);
 		mainMsgPanel.add(msgScrollPane, BorderLayout.CENTER);
+	}
+	
+	public class StackControler{
+		private StackModel stackModel = null;
+		public StackControler(){
+			stackModel = (StackModel)model.getModel("StackModel", new Object[]{model});
+		}
+		
+		public void showStack(){
+			stackModel.showStack();
+			model.setViewChanged();
+		}
 	}
 	
 	public class QueueControler{

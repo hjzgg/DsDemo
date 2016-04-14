@@ -16,37 +16,23 @@ import com.ds.tools.MyTimer;
 
 public class DsTrain extends JLabel{
 	private ImageIcon icon = null;
-	private int dir = DIR_LEFT;
 	private String number;
 	private int imageIndex = 0;
-	public static final int DIR_LEFT = 0;
-	public static final int DIR_RIGHT = 1;
-	public static final int DIR_UP = 2;
-	public static final int DIR_DOWN = 3;
 	
 	private int lx, ly;
-	
-	public void setDir(int dir){
-		this.dir = dir;
-	}
-	
-	public int getDir(){
-		return dir;
-	}
-	
+ 
 	public void setXY(int x, int y){
 		this.lx = x;
 		this.ly = y;
 		setBounds(lx, ly, this.getWidth(), this.getHeight());
 	}
 	
-	private static final String[] dirs = {"left", "right", "up", "down"};
 	
 	public static  final int imageNum = 3;
 	@Override
 	protected void paintComponent(Graphics g) {
 		if(icon == null)
-			icon = new ImageIcon("image/train/train_" + dirs[dir] + "0.png");
+			icon = new ImageIcon("image/train/train_" + "left" + "0.png");
 		g.setFont(new Font("»ªÎÄÐÐ¿¬", Font.BOLD, 20));
 		FontMetrics fontMetrics = g.getFontMetrics();
 		int contentH = fontMetrics.getHeight();
@@ -60,7 +46,7 @@ public class DsTrain extends JLabel{
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.setLayout(new FlowLayout());
-		DsTrain train = new DsTrain(1, "11");
+		DsTrain train = new DsTrain("11");
 		train.setPreferredSize(new Dimension(70, 60));
 		frame.add(train);
 		frame.setSize(new Dimension(400, 400));
@@ -68,14 +54,13 @@ public class DsTrain extends JLabel{
 		frame.setVisible(true);
 	}
 	
-	public DsTrain(int dir, String number) {
+	public DsTrain(String number) {
         this.number = number;
-		this.dir = dir;
 		MyTimer.getTimer().schedule(new TimerTask() {
 			@Override
 			public void run() {
 				imageIndex = ++imageIndex % imageNum;
-				icon = new ImageIcon("image/train/train_" + dirs[DsTrain.this.dir] + imageIndex + ".png");
+				icon = new ImageIcon("image/train/train_" + "left" + imageIndex + ".png");
 				DsTrain.this.updateUI();
 			}
 		}, 100, 100);

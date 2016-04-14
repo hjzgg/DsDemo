@@ -231,4 +231,12 @@ public class ShapeSize {
 		
 		public static final int NUMBER_OF_LINE = 8;//一行最多8个人哦
 	}
+	
+	public class StackModel{
+		public static final int STACK_LEFT_MARGIN = 300;
+		public static final int STACK_TOP_MARGIN = 200;
+		
+		public static final int NODE_WIDTH = 70;
+		public static final int NODE_HEIGHT = 60;
+	}
 }

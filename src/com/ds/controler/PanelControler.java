@@ -111,7 +111,7 @@ public class PanelControler {
 				//链表功能
 				{"com.ds.controler.DrawControler$ListControler;showListView", "com.ds.controler.DrawControler$ListControler;showListCreate", "com.ds.controler.DrawControler$ListControler;showListDelete", "com.ds.controler.DrawControler$ListControler;showListInsert", "com.ds.controler.DrawControler$ListControler;showListMergeForThree", "com.ds.controler.DrawControler$ListControler;showListMergeForOne"},
 				//栈功能
-				{"", "com.ds.controler.DrawControler$FormulaControler;formula"},
+				{"com.ds.controler.DrawControler$StackControler;showStack", "com.ds.controler.DrawControler$FormulaControler;formula"},
 				//队列功能
 				{"com.ds.controler.DrawControler$QueueControler;showQueue"},
 				//串功能
