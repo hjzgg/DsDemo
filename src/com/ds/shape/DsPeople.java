@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.ds.button.FunctionButton;
+import com.ds.size.ShapeSize;
 import com.ds.tools.MyTimer;
 
 public class DsPeople extends JLabel{
@@ -24,6 +25,22 @@ public class DsPeople extends JLabel{
 	public static final int DIR_RIGHT = 1;
 	public static final int DIR_UP = 2;
 	public static final int DIR_DOWN = 3;
+	
+	private int lx, ly;
+	
+	public void setDir(int dir){
+		this.dir = dir;
+	}
+	
+	public int getDir(){
+		return dir;
+	}
+	
+	public void setXY(int x, int y){
+		this.lx = x;
+		this.ly = y;
+		setBounds(lx, ly, this.getWidth(), this.getHeight());
+	}
 	
 	private static final String[] dirs = {"left", "right", "up", "down"};
 	
@@ -45,16 +62,15 @@ public class DsPeople extends JLabel{
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.setLayout(new FlowLayout());
-		DsPeople people = new DsPeople(2, "11");
+		DsPeople people = new DsPeople(3, "11");
 		people.setPreferredSize(new Dimension(50, 80));
 		frame.add(people);
 		frame.setSize(new Dimension(400, 400));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
-
+	
 	public DsPeople(int dir, String number) {
-        setForeground(Color.WHITE);
         this.number = number;
 		this.dir = dir;
 		MyTimer.getTimer().schedule(new TimerTask() {

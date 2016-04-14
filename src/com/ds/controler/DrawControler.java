@@ -26,6 +26,7 @@ import com.ds.model.HeapSortModel;
 import com.ds.model.HuffmanTreeModel;
 import com.ds.model.ListModel;
 import com.ds.model.MergeSortModel;
+import com.ds.model.QueueModel;
 import com.ds.model.QuickSortModel;
 import com.ds.model.RadixSortModel;
 import com.ds.model.SampleInsertSortModel;
@@ -113,6 +114,23 @@ public class DrawControler {
 		msgLabel.setForeground(Color.RED);
 		mainMsgPanel.add(msgLabel, BorderLayout.NORTH);
 		mainMsgPanel.add(msgScrollPane, BorderLayout.CENTER);
+	}
+	
+	public class QueueControler{
+		private QueueModel queueModel = null;
+		public QueueControler(){
+			queueModel = ((QueueModel)model.getModel("QueueModel", new Object[]{model}));
+		}
+		public void showQueue(){
+//			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "队列演示", true, MyDialog.MODEL_TYPE_OTHER);
+//			dialog.setDataDemoContent("A B C D E F G H");
+//			dialog.setDataFormatContent("节点值 节点值 节点值....");
+//			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//			dialog.setVisible(true);
+//			setData(dialog.getData());
+			queueModel.showQueue();
+			model.setViewChanged();
+		}
 	}
 	
 	public class ArrayControler{

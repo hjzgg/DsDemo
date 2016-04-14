@@ -72,12 +72,12 @@ public class MyClassLoader extends ClassLoader {
         return data;
     }
     
-    @Override
-    public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
-    	System.out.println(name);
-    	byte[] data = loaderClassData(name);
-        return this.defineClass(name, data, 0, data.length);
-    };
+//    @Override
+//    public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
+//    	System.out.println(name);
+//    	byte[] data = loaderClassData(name);
+//        return this.defineClass(name, data, 0, data.length);
+//    };
 
     /**
      * 获取Class对象

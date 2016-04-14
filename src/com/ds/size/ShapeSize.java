@@ -221,4 +221,14 @@ public class ShapeSize {
 		
 		public static final int ARRAY_TREE_WIDTH = RECT_WIDTH*5+ARRAY_TREE_LD*2;
 	}
+	
+	public class QueueModel{
+		public static final int QUEUE_LEFT_MARGIN = 100;
+		public static final int QUEUE_TOP_MARGIN = 100;
+		
+		public static final int NODE_WIDTH = 50;
+		public static final int NODE_HEIGHT = 85;
+		
+		public static final int NUMBER_OF_LINE = 8;//一行最多8个人哦
+	}
 }

@@ -113,7 +113,7 @@ public class PanelControler {
 				//栈功能
 				{"", "com.ds.controler.DrawControler$FormulaControler;formula"},
 				//队列功能
-				{""},
+				{"com.ds.controler.DrawControler$QueueControler;showQueue"},
 				//串功能
 				{"com.ds.controler.DrawControler$StringControler;BF", "com.ds.controler.DrawControler$StringControler;KMP_NEXT", "com.ds.controler.DrawControler$StringControler;KMP_NEXTVAL"},
 				//广义表功能
