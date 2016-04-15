@@ -786,9 +786,9 @@ public class DrawControler {
 		public void formula(){
 			setData(initDialog("表达式计算模拟"));
 			if(showWay == 1)
-				formulaTree();
-			else if(showWay == 2)
 				formulaStack();
+			else if(showWay == 2)
+				formulaTree();
 		}
 		
 		private void formulaTree(){

@@ -20,7 +20,6 @@ import com.ds.size.ShapeSize;
 public class FormulaModel {
 	private DrawModel model;
 	private ArrayList<Shape> shapeList;
-	
 	private Map<DsRect, TreeNode> arrayToTree = new TreeMap<DsRect, TreeNode>();
 	private TreeNode buildT(ArrayList<DsRect> formulaRects, int ld, int rd){
 		TreeNode root = null;
@@ -287,6 +286,8 @@ public class FormulaModel {
 		createFormulaTreeModel(root, 1, false);
 		
 		int tw = ShapeSize.FormulaModel.LEFT_MARGIN + treeNodeCnt*(ShapeSize.FormulaModel.NODES_HOR_DIST + ShapeSize.FormulaModel.CIRCLE_WIDTH);
+		if(tw < ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH)
+			tw = ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH;
 		int th = treeBottom + ShapeSize.FormulaModel.CIRCLE_HEIGHT;
 		model.getObserverPanel().setPreferredSize(new Dimension(tw, th));
 		buildTDisplay(formulaRects, 0, formulaRects.size()-1);
@@ -417,6 +418,8 @@ public class FormulaModel {
 			shapeList.add(rect);
 			formulaList.add(new FormulaNode(datas[i], rect));
 		}
+		
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.FormulaModel.LEFT_MARGIN+(formulaList.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH, 0));
 		
 		StackList opts = new StackList(model);
 		StackList opds = new StackList(model);
