@@ -233,8 +233,8 @@ public class ShapeSize {
 	}
 	
 	public class StackModel{
-		public static final int STACK_LEFT_MARGIN = 300;
-		public static final int STACK_TOP_MARGIN = 200;
+		public static final int STACK_LEFT_MARGIN = 400;
+		public static final int STACK_TOP_MARGIN = 150;
 		
 		public static final int NODE_WIDTH = 70;
 		public static final int NODE_HEIGHT = 60;

@@ -38,7 +38,7 @@ public class DsTrain extends JLabel{
 		int contentH = fontMetrics.getHeight();
 		int contentW = fontMetrics.stringWidth(number);
 		g.setColor(Color.BLACK);
-		g.drawString(number, (this.getWidth()-contentW)/2, contentH/2);
+		g.drawString(number, (this.getWidth()-contentW)/2, contentH/2+5);
 		g.drawImage(icon.getImage(), 5, contentH/2, this.getWidth()-10, this.getHeight()-10, null);
 		super.paintComponent(g);
 	}
