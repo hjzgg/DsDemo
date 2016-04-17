@@ -1,5 +1,7 @@
 package com.test;
 
+
+//test git_bash(使用命令行的形式进行commit)
 import java.awt.*;
 import javax.swing.*;
 
