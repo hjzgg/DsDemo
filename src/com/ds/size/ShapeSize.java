@@ -239,4 +239,12 @@ public class ShapeSize {
 		public static final int NODE_WIDTH = 70;
 		public static final int NODE_HEIGHT = 60;
 	}
+	
+	public class MazeModel{
+		public static final int MAZE_LEFT_MARGIN = 50;
+		public static final int MAZE_TOP_MARGIN = 50;
+		
+		public static final int NODE_WIDTH = 70;
+		public static final int NODE_HEIGHT = 70;
+	}
 }

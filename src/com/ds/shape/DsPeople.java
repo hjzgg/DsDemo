@@ -49,21 +49,25 @@ public class DsPeople extends JLabel{
 	protected void paintComponent(Graphics g) {
 		if(icon == null)
 			icon = new ImageIcon("image/queuOfPeople/people_" + dirs[dir] + "0.gif");
-		g.setFont(new Font("华文行楷", Font.BOLD, 20));
-		FontMetrics fontMetrics = g.getFontMetrics();
-		int contentH = fontMetrics.getHeight();
-		int contentW = fontMetrics.stringWidth(number);
-		g.setColor(Color.BLACK);
-		g.drawString(number, (this.getWidth()-contentW)/2, contentH/2);
-		g.drawImage(icon.getImage(), 5, contentH/2, this.getWidth()-10, this.getHeight()-10, null);
+		if(number != null){
+			g.setFont(new Font("华文行楷", Font.BOLD, 20));
+			FontMetrics fontMetrics = g.getFontMetrics();
+			int contentH = fontMetrics.getHeight();
+			int contentW = fontMetrics.stringWidth(number);
+			g.setColor(Color.BLACK);
+			g.drawString(number, (this.getWidth()-contentW)/2, contentH/2);
+			g.drawImage(icon.getImage(), 5, contentH/2, this.getWidth()-10, this.getHeight()-10, null);
+		} else {
+			g.drawImage(icon.getImage(), 10, 5, this.getWidth()-20, this.getHeight()-10, null);
+		}
 		super.paintComponent(g);
 	}
 	
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.setLayout(new FlowLayout());
-		DsPeople people = new DsPeople(3, "11");
-		people.setPreferredSize(new Dimension(50, 80));
+		DsPeople people = new DsPeople(3, null);
+		people.setPreferredSize(new Dimension(70, 70));
 		frame.add(people);
 		frame.setSize(new Dimension(400, 400));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

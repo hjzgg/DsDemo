@@ -25,6 +25,7 @@ import com.ds.model.GraphicModel;
 import com.ds.model.HeapSortModel;
 import com.ds.model.HuffmanTreeModel;
 import com.ds.model.ListModel;
+import com.ds.model.MazeModel;
 import com.ds.model.MergeSortModel;
 import com.ds.model.QueueModel;
 import com.ds.model.QuickSortModel;
@@ -818,6 +819,26 @@ public class DrawControler {
 		public void huffmanTree(){
 			setData(initDialog("哈弗曼编码模拟"));
 			huffmanTreeModel.huffmanTree(data);
+		}
+	}
+	
+	public class MazeControler{
+		private MazeModel mazeModel = null;
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("4 4 0 0 3 3");
+			dialog.setDataFormatContent("宽度 高度 初始x 初始y 结束x 结束y");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
+		public MazeControler() {
+			mazeModel = (MazeModel)model.getModel("MazeModel", new Object[]{model});
+		}
+
+		public void mazeShowByDfs(){
+			setData(initDialog("迷宫DFS模拟"));
+			mazeModel.mazeShowByDfs(data);
 		}
 	}
 	

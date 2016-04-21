@@ -66,7 +66,7 @@ public class PanelControler {
 				//链表功能
 				{"链表显示", "链表创建", "链表删除", "链表插入", "链表合并(生成新链表)", "链表合并(就地合并)"},
 				//栈功能
-				{"栈演示", "表达式求值"},
+				{"栈演示", "表达式求值", "迷宫DFS"},
 				//队列功能
 				{"队列演示"},
 				//串功能
@@ -111,7 +111,7 @@ public class PanelControler {
 				//链表功能
 				{"com.ds.controler.DrawControler$ListControler;showListView", "com.ds.controler.DrawControler$ListControler;showListCreate", "com.ds.controler.DrawControler$ListControler;showListDelete", "com.ds.controler.DrawControler$ListControler;showListInsert", "com.ds.controler.DrawControler$ListControler;showListMergeForThree", "com.ds.controler.DrawControler$ListControler;showListMergeForOne"},
 				//栈功能
-				{"com.ds.controler.DrawControler$StackControler;showStack", "com.ds.controler.DrawControler$FormulaControler;formula"},
+				{"com.ds.controler.DrawControler$StackControler;showStack", "com.ds.controler.DrawControler$FormulaControler;formula", "com.ds.controler.DrawControler$MazeControler;mazeShowByDfs"},
 				//队列功能
 				{"com.ds.controler.DrawControler$QueueControler;showQueue"},
 				//串功能
