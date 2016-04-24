@@ -16,7 +16,7 @@ import com.ds.button.FunctionButton;
 import com.ds.size.ShapeSize;
 import com.ds.tools.MyTimer;
 
-public class DsPeople extends JLabel{
+public class DsPeople extends JLabel implements Cloneable{
 	private ImageIcon icon = null;
 	private int dir = DIR_LEFT;
 	private String number;
@@ -72,6 +72,17 @@ public class DsPeople extends JLabel{
 		frame.setSize(new Dimension(400, 400));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+	}
+	
+	@Override
+	public Object clone(){
+		Object obj = null;
+		try {
+			obj = super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 	
 	public DsPeople(int dir, String number) {

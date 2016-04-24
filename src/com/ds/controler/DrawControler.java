@@ -840,6 +840,11 @@ public class DrawControler {
 			setData(initDialog("ÃÔ¹¬DFSÄ£Äâ"));
 			mazeModel.mazeShowByDfs(data);
 		}
+		
+		public void mazeShowByBfs(){
+			setData(initDialog("ÃÔ¹¬BFSÄ£Äâ"));
+			mazeModel.mazeShowByBfs(data);
+		}
 	}
 	
 	public static void main(String[] args) {
