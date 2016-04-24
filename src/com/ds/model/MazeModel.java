@@ -62,23 +62,24 @@ public class MazeModel {
 			int npx = px + dir[i][0];
 			int npy = py + dir[i][1];
 			if(npx<0 || npy<0 || npx>=mr || npy>=mc || mazeShape.vis[npx][npy] || !mazeShape.maze[npx][npy]) continue;
-			mazeShape.openDoor(px, py, pDir[i]);
+			DsLine tmpLine = null;
+			tmpLine = mazeShape.openDoor(px, py, pDir[i]);
 			
 			mazeShape.peopleMove(mazeShape.people, pDir[i], npx, npy);
 			//画脚印
 			DsImage foots = new DsImage("image/foots.png");
 			foots.setBounds(mazeShape.mazeRect[px][py].left, mazeShape.mazeRect[px][py].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
 			panel.add(foots);
-			mazeShape.closeDoor();
+			mazeShape.closeDoor(tmpLine);
 			
 			//找到出口，结束
 			if(npx==ex && npy==ey) { return true; }
 			if(showDfs(mr, mc, npx, npy, ex, ey)) return true;
-			mazeShape.openDoor(npx, npy, reversePDir[i]);
+			tmpLine = mazeShape.openDoor(npx, npy, reversePDir[i]);
 			panel.remove(foots);
 			panel.updateUI();
 			mazeShape.peopleMove(mazeShape.people, reversePDir[i], px, py);
-			mazeShape.closeDoor();
+			mazeShape.closeDoor(tmpLine);
 		}
 		return false;
 	}
@@ -95,6 +96,8 @@ public class MazeModel {
 	    mazeShape = new MazeShape(mr, mc, px, py, ex, ey);
 		model.setViewChanged();
 		
+		if(px==ex && py==ey) return;
+		
 		Point begin = new Point(px, py);
 		Queue<Point> queue = new LinkedList<Point>();
 		Set<Point> vis = new HashSet<Point>();
@@ -108,12 +111,15 @@ public class MazeModel {
 			@Override
 			public void run() {
 				//产生新的people，设置方向
-				DsPeople people = (DsPeople) mazeShape.mapToPeople.get(cur).clone();
-				people.setDir(dir);
+				DsPeople prePeople = mazeShape.mapToPeople.get(cur);
+				DsPeople people = new DsPeople(dir, null);
+				people.setBounds(prePeople.getX(), prePeople.getY(), prePeople.getWidth(), prePeople.getHeight());
+				panel.add(people);
+				panel.setComponentZOrder(people, 0);
 				
-				mazeShape.openDoor(cur.x, cur.y, dir);
+				DsLine tmpLine = mazeShape.openDoor(cur.x, cur.y, dir);
 				mazeShape.peopleMove(people, dir, next.x, next.y);
-				mazeShape.closeDoor();
+				mazeShape.closeDoor(tmpLine);
 				mazeShape.mapToPeople.put(next, people);
 			}
 			public BfsOperation(Point cur, Point next, int dir) {
@@ -126,24 +132,35 @@ public class MazeModel {
 		while(!queue.isEmpty()){
 			Point cur = queue.poll();
 			List<Thread> threadList = new ArrayList<Thread>();
+			boolean find = false;
 			for(int i=0; i<4; ++i){
 				int x = cur.x + dir[i][0];
 				int y = cur.y + dir[i][1];
 				if(x<0 || y<0 || x>=mr || y>=mc) continue;
+				if(x==ex && y==ey) find = true;
 				Point next = new Point(x, y);
-				if(vis.contains(next)) continue;
+				if(vis.contains(next) || !mazeShape.maze[x][y]) continue;
 				vis.add(next);
 				queue.add(next);
 				Thread thread = new Thread(new BfsOperation(cur, next, pDir[i]), "childThread_PeopleMove" + i);
 				threadList.add(thread);
 				thread.start();
 			}
+			if(threadList.size() > 0){
+				DsPeople people = mazeShape.mapToPeople.get(new Point(cur.x, cur.y));
+				panel.remove(people);
+				DsImage foots = new DsImage("image/foots.png");
+				foots.setBounds(people.getX(), people.getY(), people.getWidth(), people.getHeight());
+				panel.add(foots);
+			}
+			
 			try {
 				for(Thread thread : threadList)
 					thread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			if(find) break;
 		}
 	}
 	
@@ -233,7 +250,6 @@ public class MazeModel {
 			panel.setComponentZOrder(people, 0);
 		}
 		
-		private DsLine tmpLine;
 		private DsLine topLine, bottomLine, leftLine, rightLine;
 		private static final int DOOR_MOVE_DIST = 5;
 		/**
@@ -241,8 +257,8 @@ public class MazeModel {
 		 * @param y
 		 * @param dir
 		 */
-		public void openDoor(int x, int y, int dir){
-		    tmpLine = mazeRect[x][y].lines[dir];
+		public DsLine openDoor(int x, int y, int dir){
+			DsLine tmpLine = mazeRect[x][y].lines[dir];
 			synchronized (Shape.class) {
 				shapeList.remove(tmpLine);
 			}
@@ -299,9 +315,11 @@ public class MazeModel {
 					shapeList.remove(rightLine);
 				}
 			}
+			
+			return tmpLine;
 		}
 		
-		public void closeDoor(){
+		public void closeDoor(DsLine tmpLine){
 			if(tmpLine.x1 == tmpLine.x2){
 				synchronized (Shape.class) {
 					shapeList.add(topLine);
