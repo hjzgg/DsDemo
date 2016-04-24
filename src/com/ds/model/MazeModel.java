@@ -63,23 +63,21 @@ public class MazeModel {
 			int npy = py + dir[i][1];
 			if(npx<0 || npy<0 || npx>=mr || npy>=mc || mazeShape.vis[npx][npy] || !mazeShape.maze[npx][npy]) continue;
 			mazeShape.openDoor(px, py, pDir[i]);
-<<<<<<< HEAD
-			mazeShape.peopleMove(pDir[i], npx, npy);
+			
+			mazeShape.peopleMove(mazeShape.people, pDir[i], npx, npy);
 			//画脚印
 			DsImage foots = new DsImage("image/foots.png");
 			foots.setBounds(mazeShape.mazeRect[px][py].left, mazeShape.mazeRect[px][py].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
 			panel.add(foots);
-=======
-			mazeShape.peopleMove(mazeShape.people, pDir[i], npx, npy);
->>>>>>> 074802a10303bf2fbe7cddfd89155f5e28a3e467
 			mazeShape.closeDoor();
+			
 			//找到出口，结束
 			if(npx==ex && npy==ey) { return true; }
 			if(showDfs(mr, mc, npx, npy, ex, ey)) return true;
 			mazeShape.openDoor(npx, npy, reversePDir[i]);
 			panel.remove(foots);
 			panel.updateUI();
-			mazeShape.peopleMove(reversePDir[i], px, py);
+			mazeShape.peopleMove(mazeShape.people, reversePDir[i], px, py);
 			mazeShape.closeDoor();
 		}
 		return false;
