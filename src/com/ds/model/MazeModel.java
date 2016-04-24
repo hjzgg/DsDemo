@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import com.ds.panel.DrawPanel;
+import com.ds.shape.DsImage;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsPeople;
 import com.ds.shape.Shape;
@@ -34,6 +35,7 @@ public class MazeModel {
 	
 	private static final int[][] dir = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	private static final int[] pDir = {MazeRect.RIGHT, MazeRect.BOTTOM, MazeRect.LEFT, MazeRect.TOP};
+	private static final int[] reversePDir = {MazeRect.LEFT, MazeRect.TOP, MazeRect.RIGHT, MazeRect.BOTTOM};
 	/**
 	 * @param mr	迷宫的行数
 	 * @param mc	迷宫的列数
@@ -44,22 +46,32 @@ public class MazeModel {
 	 * @param ppx	上一步的位置x
 	 * @param ppy	上一步的位置y
 	 */
-	private void showDfs(int mr, int mc, int px, int py, int ex, int ey){
+	private boolean showDfs(int mr, int mc, int px, int py, int ex, int ey){
 		if(px==ex && py==ey){
-			return;
+			return true;
 		}
 		mazeShape.vis[px][py] = true;
 		for(int i=0; i<dir.length; ++i){
 			int npx = px + dir[i][0];
 			int npy = py + dir[i][1];
-			if(npx<0 || npy<0 || npx>=mr || npy>=mc || mazeShape.vis[npx][npy]) continue;
+			if(npx<0 || npy<0 || npx>=mr || npy>=mc || mazeShape.vis[npx][npy] || !mazeShape.maze[npx][npy]) continue;
 			mazeShape.openDoor(px, py, pDir[i]);
 			mazeShape.peopleMove(pDir[i], npx, npy);
+			//画脚印
+			DsImage foots = new DsImage("image/foots.png");
+			foots.setBounds(mazeShape.mazeRect[px][py].left, mazeShape.mazeRect[px][py].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
+			panel.add(foots);
 			mazeShape.closeDoor();
 			//找到出口，结束
-			if(npx==ex && npy==ey) { return; }
-			showDfs(mr, mc, npx, npy, ex, ey);
+			if(npx==ex && npy==ey) { return true; }
+			if(showDfs(mr, mc, npx, npy, ex, ey)) return true;
+			mazeShape.openDoor(npx, npy, reversePDir[i]);
+			panel.remove(foots);
+			panel.updateUI();
+			mazeShape.peopleMove(reversePDir[i], px, py);
+			mazeShape.closeDoor();
 		}
+		return false;
 	}
 	
 	public void mazeShowByBfs(){
@@ -124,19 +136,29 @@ public class MazeModel {
 			//随机 迷宫中的墙壁
 			for(int i=0; i < mr; ++i){
 				for(int j=0; j< mc; ++j){
-					if((i==px && j==py || i==ex && j==py)) continue;
+					if((i==px && j==py || i==ex && j==ey)) continue;
 					int num = Math.abs(random.nextInt()) % mc;
-					if(num <= mc/3){//1/3的概率，表示这个方格是墙壁
+					if(num <= mc/4){//1/4的概率，表示这个方格是墙壁
 						maze[i][j] = false;
+						//画墙壁
+						DsImage wall = new DsImage("image/wall.png");
+						wall.setBounds(mazeRect[i][j].left, mazeRect[i][j].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
+						panel.add(wall);
 					}
 				}
 			}
 			
-			int tpx = ShapeSize.MazeModel.MAZE_LEFT_MARGIN + px*ShapeSize.MazeModel.NODE_WIDTH;
-			int tpy = ShapeSize.MazeModel.MAZE_TOP_MARGIN + py*ShapeSize.MazeModel.NODE_HEIGHT;
+			//迷宫的门
+			DsImage door = new DsImage("image/door.png");
+			door.setBounds(mazeRect[ex][ey].left, mazeRect[ex][ey].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
+			panel.add(door);
+			
+			int tpx = ShapeSize.MazeModel.MAZE_LEFT_MARGIN + py*ShapeSize.MazeModel.NODE_WIDTH;
+			int tpy = ShapeSize.MazeModel.MAZE_TOP_MARGIN + px*ShapeSize.MazeModel.NODE_HEIGHT;
 			people = new DsPeople(DsPeople.DIR_DOWN, null);
 			people.setBounds(tpx, tpy, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
 			panel.add(people);
+			panel.setComponentZOrder(people, 0);
 		}
 		
 		private DsLine tmpLine;
@@ -297,6 +319,8 @@ public class MazeModel {
 		}
 		
 		public MazeShape(int mr, int mc, int px, int py, int ex, int ey) {
+			shapeList.clear();
+			panel.removeAll();
 			initMaze(mr, mc, px, py, ex, ey);
 		}
 		
