@@ -1,7 +1,14 @@
 package com.ds.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.ds.panel.DrawPanel;
@@ -56,11 +63,15 @@ public class MazeModel {
 			int npy = py + dir[i][1];
 			if(npx<0 || npy<0 || npx>=mr || npy>=mc || mazeShape.vis[npx][npy] || !mazeShape.maze[npx][npy]) continue;
 			mazeShape.openDoor(px, py, pDir[i]);
+<<<<<<< HEAD
 			mazeShape.peopleMove(pDir[i], npx, npy);
 			//画脚印
 			DsImage foots = new DsImage("image/foots.png");
 			foots.setBounds(mazeShape.mazeRect[px][py].left, mazeShape.mazeRect[px][py].top, ShapeSize.MazeModel.NODE_WIDTH, ShapeSize.MazeModel.NODE_HEIGHT);
 			panel.add(foots);
+=======
+			mazeShape.peopleMove(mazeShape.people, pDir[i], npx, npy);
+>>>>>>> 074802a10303bf2fbe7cddfd89155f5e28a3e467
 			mazeShape.closeDoor();
 			//找到出口，结束
 			if(npx==ex && npy==ey) { return true; }
@@ -74,12 +85,75 @@ public class MazeModel {
 		return false;
 	}
 	
-	public void mazeShowByBfs(){
+	public void mazeShowByBfs(String datas){
+		String[] params = datas.split(" ");
+		if(params.length != 6) return;
+		int mr = Integer.parseInt(params[0]);
+		int mc = Integer.parseInt(params[1]);
+		int px = Integer.parseInt(params[2]);
+		int py = Integer.parseInt(params[3]);
+		int ex = Integer.parseInt(params[4]);
+		int ey = Integer.parseInt(params[5]);
+	    mazeShape = new MazeShape(mr, mc, px, py, ex, ey);
+		model.setViewChanged();
 		
+		Point begin = new Point(px, py);
+		Queue<Point> queue = new LinkedList<Point>();
+		Set<Point> vis = new HashSet<Point>();
+		queue.add(begin);
+		vis.add(begin);
+		mazeShape.mapToPeople.put(begin, mazeShape.people);
+		
+		class BfsOperation implements Runnable{
+			Point cur, next;
+			int dir;
+			@Override
+			public void run() {
+				//产生新的people，设置方向
+				DsPeople people = (DsPeople) mazeShape.mapToPeople.get(cur).clone();
+				people.setDir(dir);
+				
+				mazeShape.openDoor(cur.x, cur.y, dir);
+				mazeShape.peopleMove(people, dir, next.x, next.y);
+				mazeShape.closeDoor();
+				mazeShape.mapToPeople.put(next, people);
+			}
+			public BfsOperation(Point cur, Point next, int dir) {
+				super();
+				this.cur = cur;
+				this.next = next;
+				this.dir = dir;
+			}
+		}
+		while(!queue.isEmpty()){
+			Point cur = queue.poll();
+			List<Thread> threadList = new ArrayList<Thread>();
+			for(int i=0; i<4; ++i){
+				int x = cur.x + dir[i][0];
+				int y = cur.y + dir[i][1];
+				if(x<0 || y<0 || x>=mr || y>=mc) continue;
+				Point next = new Point(x, y);
+				if(vis.contains(next)) continue;
+				vis.add(next);
+				queue.add(next);
+				Thread thread = new Thread(new BfsOperation(cur, next, pDir[i]), "childThread_PeopleMove" + i);
+				threadList.add(thread);
+				thread.start();
+			}
+			try {
+				for(Thread thread : threadList)
+					thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	class MazeShape{
+		//用于 dfs 遍历
 		private DsPeople people = null;
+		//用于 bfs 遍历
+		private Map<Point, DsPeople> mapToPeople = new HashMap<Point, DsPeople>();
 		private MazeRect[][] mazeRect = null;
 		private boolean[][] maze = null;
 		private boolean[][] vis = null;
@@ -277,41 +351,41 @@ public class MazeModel {
 			}
 		}
 		
-		public void peopleMove(int dir, int x, int y){
-			people.setDir(dir);
+		public void peopleMove(DsPeople curPeople, int dir, int x, int y){
+			curPeople.setDir(dir);
 			final int PEOPLE_MOVE_DIST = 5;
 			int tx = ShapeSize.MazeModel.MAZE_LEFT_MARGIN + y*ShapeSize.MazeModel.NODE_WIDTH;
 			int ty = ShapeSize.MazeModel.MAZE_TOP_MARGIN + x*ShapeSize.MazeModel.NODE_HEIGHT;
 			switch(dir){
 				case MazeRect.LEFT:
-					while(people.getX() > tx){
-						people.setXY(people.getX()-PEOPLE_MOVE_DIST, people.getY());
-						if(people.getX() < tx)
-							people.setXY(tx, people.getY());
+					while(curPeople.getX() > tx){
+						curPeople.setXY(curPeople.getX()-PEOPLE_MOVE_DIST, curPeople.getY());
+						if(curPeople.getX() < tx)
+							curPeople.setXY(tx, curPeople.getY());
 						delay(100);
 					}
 					break;
 				case MazeRect.RIGHT:
-					while(people.getX() < tx){
-						people.setXY(people.getX()+PEOPLE_MOVE_DIST, people.getY());
-						if(people.getX() > tx)
-							people.setXY(tx, people.getY());
+					while(curPeople.getX() < tx){
+						curPeople.setXY(curPeople.getX()+PEOPLE_MOVE_DIST, curPeople.getY());
+						if(curPeople.getX() > tx)
+							curPeople.setXY(tx, curPeople.getY());
 						delay(100);
 					} 
 					break;
 				case MazeRect.TOP:
-					while(people.getY() > ty){
-						people.setXY(people.getX(), people.getY()-PEOPLE_MOVE_DIST);
-						if(people.getY() < ty)
-							people.setXY(people.getX(), ty);
+					while(curPeople.getY() > ty){
+						curPeople.setXY(curPeople.getX(), curPeople.getY()-PEOPLE_MOVE_DIST);
+						if(curPeople.getY() < ty)
+							curPeople.setXY(curPeople.getX(), ty);
 						delay(100);
 					}
 					break;
 				case MazeRect.BOTTOM:
-					while(people.getY() < ty){
-						people.setXY(people.getX(), people.getY()+PEOPLE_MOVE_DIST);
-						if(people.getY() > ty)
-							people.setXY(people.getX(), ty);
+					while(curPeople.getY() < ty){
+						curPeople.setXY(curPeople.getX(), curPeople.getY()+PEOPLE_MOVE_DIST);
+						if(curPeople.getY() > ty)
+							curPeople.setXY(curPeople.getX(), ty);
 						delay(100);
 					} 
 					break;
@@ -357,6 +431,41 @@ public class MazeModel {
 		this.model = model;
 		this.shapeList = model.getShapeList();
 		this.panel = model.getObserverPanel();
+	}
+}
+
+class Point{
+	public int x, y;
+
+	public Point(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Point other = (Point) obj;
+		if (x != other.x)
+			return false;
+		if (y != other.y)
+			return false;
+		return true;
 	}
 }
 

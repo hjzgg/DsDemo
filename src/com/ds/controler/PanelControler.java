@@ -68,7 +68,7 @@ public class PanelControler {
 				//栈功能
 				{"栈演示", "表达式求值", "迷宫DFS"},
 				//队列功能
-				{"队列演示"},
+				{"队列演示", "迷宫BFS"},
 				//串功能
 				{"串匹配(BF)", "串匹配(KMP_NEXT)", "串匹配(KMP_NEXTVAL)"},
 				//广义表功能
@@ -113,7 +113,7 @@ public class PanelControler {
 				//栈功能
 				{"com.ds.controler.DrawControler$StackControler;showStack", "com.ds.controler.DrawControler$FormulaControler;formula", "com.ds.controler.DrawControler$MazeControler;mazeShowByDfs"},
 				//队列功能
-				{"com.ds.controler.DrawControler$QueueControler;showQueue"},
+				{"com.ds.controler.DrawControler$QueueControler;showQueue", "com.ds.controler.DrawControler$MazeControler;mazeShowByBfs"},
 				//串功能
 				{"com.ds.controler.DrawControler$StringControler;BF", "com.ds.controler.DrawControler$StringControler;KMP_NEXT", "com.ds.controler.DrawControler$StringControler;KMP_NEXTVAL"},
 				//广义表功能
