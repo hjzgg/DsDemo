@@ -1,5 +1,6 @@
 package com.ds.model;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,8 @@ public class MazeModel {
 		model.setViewChanged();
 		showDfs(mr, mc, px, py, ex, ey);
 	}
+	
+	private int swidth, sheight;
 	
 	private static final int[][] dir = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	private static final int[] pDir = {MazeRect.RIGHT, MazeRect.BOTTOM, MazeRect.LEFT, MazeRect.TOP};
@@ -174,6 +177,8 @@ public class MazeModel {
 		private boolean[][] vis = null;
 		//初始化迷宫
 		private void initMaze(int mr, int mc, int px, int py, int ex, int ey){
+			swidth = panel.getWidth();
+			sheight = panel.getHeight();
 			mazeRect = new MazeRect[mr][];
 			int lx, ly = ShapeSize.MazeModel.MAZE_TOP_MARGIN;
 			int lw = ShapeSize.MazeModel.NODE_WIDTH, lh = ShapeSize.MazeModel.NODE_HEIGHT;
@@ -183,6 +188,8 @@ public class MazeModel {
 				for(int j=0; j<mc; ++j){
 					mazeRect[i][j] = new MazeRect(lx, ly, lw, lh);
 					lx += ShapeSize.MazeModel.NODE_WIDTH;
+					if(swidth < lx+ShapeSize.MazeModel.NODE_WIDTH)
+						swidth = lx+ShapeSize.MazeModel.NODE_WIDTH;
 					//画边
 					DsLine topLine = new DsLine(mazeRect[i][j].left, mazeRect[i][j].top, mazeRect[i][j].left+mazeRect[i][j].width, mazeRect[i][j].top, false);
 					DsLine leftLine = new DsLine(mazeRect[i][j].left, mazeRect[i][j].top, mazeRect[i][j].left, mazeRect[i][j].top+mazeRect[i][j].height, false);
@@ -196,7 +203,15 @@ public class MazeModel {
 					shapeList.add(topLine);
 				}
 				ly += ShapeSize.MazeModel.NODE_HEIGHT;
+				if(sheight < ly+ShapeSize.MazeModel.NODE_HEIGHT)
+					sheight = ly+ShapeSize.MazeModel.NODE_HEIGHT;
 			}
+			
+			//调整屏幕的尺寸
+			if(swidth > panel.getWidth())
+				panel.setPreferredSize(new Dimension(swidth, panel.getHeight()));
+			if(sheight > panel.getHeight())
+				panel.setPreferredSize(new Dimension(panel.getWidth(), sheight));
 			
 			//填充整个迷宫的最右边的边
 			for(int i=0; i<mr; ++i){
