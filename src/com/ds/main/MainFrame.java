@@ -18,6 +18,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
+import com.ds.panel.CommunicationPanel;
 import com.ds.panel.EditCodeAndBrowse;
 import com.ds.panel.FunctionPanel;
 import com.ds.tools.MyTimer;
@@ -70,7 +71,7 @@ public class MainFrame extends JFrame{
        }
     }
    
-    private Class<?>[] mainPanels = {FunctionPanel.class, EditCodeAndBrowse.class};
+    private Class<?>[] mainPanels = {FunctionPanel.class, EditCodeAndBrowse.class, CommunicationPanel.class};
     //创建标签内容部分
     private JPanel createContent(int index) {
 		if(index >= mainPanels.length) return null;

@@ -462,6 +462,7 @@ public class MazeModel {
 		this.model = model;
 		this.shapeList = model.getShapeList();
 		this.panel = model.getObserverPanel();
+		this.panel.removeAll();
 	}
 }
 
