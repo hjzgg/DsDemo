@@ -22,6 +22,7 @@ public class CommunicationPanel extends JPanel{
 		this.remove(panels[prePanelIndex]);
 		this.add(panels[panelIndex], BorderLayout.CENTER);
 		prePanelIndex = panelIndex;
+		this.updateUI();
 	}
 	
 	public CommunicationPanel(){

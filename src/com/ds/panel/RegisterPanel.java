@@ -8,22 +8,29 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URLEncoder;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import com.ds.tools.JavaRequest;
+
+import net.sf.json.JSONObject;
 
 public class RegisterPanel extends JPanel{
 	private CommunicationPanel parentPanel;
 	
 	private JPanel registerPanel = null;
 	private JTextField usernameFiled;
-	private JTextField passwodFiled;
-	private JTextField comfirmFiled;
+	private JPasswordField passwodFiled;
+	private JPasswordField comfirmFiled;
 	public RegisterPanel(CommunicationPanel pPanel) {
 		this.parentPanel = pPanel;
 		setLayout(new BorderLayout(0, 0));
@@ -73,7 +80,7 @@ public class RegisterPanel extends JPanel{
 		JLabel passwordLabel = new JLabel("\u5BC6\u7801");
 		panel_register_password.add(passwordLabel);
 		
-		passwodFiled = new JTextField();
+		passwodFiled = new JPasswordField();
 		passwodFiled.setToolTipText("\u5BC6\u7801");
 		panel_register_password.add(passwodFiled);
 		passwodFiled.setColumns(20);
@@ -86,7 +93,7 @@ public class RegisterPanel extends JPanel{
 		comfirmLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		panel_1.add(comfirmLabel);
 		
-		comfirmFiled = new JTextField();
+		comfirmFiled = new JPasswordField();
 		comfirmFiled.setToolTipText("\u786E\u8BA4\u5BC6\u7801");
 		panel_1.add(comfirmFiled);
 		comfirmFiled.setColumns(20);
@@ -100,6 +107,29 @@ public class RegisterPanel extends JPanel{
 		JButton button = new JButton("\u6CE8\u518C");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				try {
+					if(usernameFiled.getText().isEmpty() || passwodFiled.getText().isEmpty()){
+						JOptionPane.showMessageDialog(null, "姓名或密码不能为空!", "温馨提示", JOptionPane.ERROR_MESSAGE);
+						return ;
+					}
+					if(passwodFiled.getText().equals(comfirmFiled.getText())){
+						JSONObject jsono = new JSONObject();
+						jsono.put("username", URLEncoder.encode(usernameFiled.getText(), "utf-8"));
+						jsono.put("password", passwodFiled.getText());
+						String data = JavaRequest.sendPost("userRegister", jsono);
+						JSONObject result = JSONObject.fromObject(data);
+						if((Boolean) result.get("success")){
+							JOptionPane.showMessageDialog(null, "register success.", "温馨提示", JOptionPane.INFORMATION_MESSAGE);
+							parentPanel.switchPanel(CommunicationPanel.LOGIN_PANEL);
+						} else {
+						    JOptionPane.showMessageDialog(null, result.get("message"), "温馨提示",JOptionPane.WARNING_MESSAGE);  
+						}
+					} else {
+						JOptionPane.showMessageDialog(null, "两次输入密码不一致!", "温馨提示", JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (Exception ez) {
+					ez.printStackTrace();
+				}
 			}
 		});
 		panel.add(button);

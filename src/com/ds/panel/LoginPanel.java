@@ -5,30 +5,33 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Panel;
-
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import java.awt.GridLayout;
-import javax.swing.JTextField;
-import javax.swing.JCheckBox;
-import javax.swing.JButton;
-
-import com.ds.controler.PanelControler;
-
-import java.awt.event.ActionListener;
+import java.awt.Panel;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.net.URLEncoder;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+import net.sf.json.JSONObject;
+
+import com.ds.tools.JavaRequest;
 
 public class LoginPanel extends JPanel{
 	private CommunicationPanel parentPanel;
 	
 	private JPanel loginPanel = null;
 	private JTextField usernameFiled;
-	private JTextField passwodFiled;
+	private JPasswordField passwodFiled;
 	public LoginPanel(CommunicationPanel pPanel) {
 		this.parentPanel = pPanel;
 		setLayout(new BorderLayout(0, 0));
@@ -78,7 +81,7 @@ public class LoginPanel extends JPanel{
 		JLabel passwordLabel = new JLabel("\u5BC6\u7801");
 		panel_login_password.add(passwordLabel);
 		
-		passwodFiled = new JTextField();
+		passwodFiled = new JPasswordField();
 		panel_login_password.add(passwodFiled);
 		passwodFiled.setColumns(20);
 		
@@ -94,8 +97,28 @@ public class LoginPanel extends JPanel{
 		JButton button = new JButton("\u767B\u5F55");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//切换到用户交流信息面板
-				parentPanel.switchPanel(CommunicationPanel.MESSAGE_PANEL);
+				try{
+					if(usernameFiled.getText().isEmpty() || passwodFiled.getText().isEmpty()){
+						JOptionPane.showMessageDialog(null, "姓名或密码不能为空!", "温馨提示", JOptionPane.ERROR_MESSAGE);
+						return ;
+					}
+					JSONObject jsono = new JSONObject();
+					jsono.put("username", usernameFiled.getText());
+					jsono.put("password", passwodFiled.getText());
+					String data = JavaRequest.sendPost("userLogin", jsono);
+					JSONObject result = JSONObject.fromObject(data);
+					if((Boolean) result.get("success")){
+						//将认证tooken放入请求类中
+						JavaRequest.userToken = result.getString("userToken");
+						JavaRequest.username = usernameFiled.getText();
+						//切换到用户交流信息面板
+						parentPanel.switchPanel(CommunicationPanel.MESSAGE_PANEL);
+					} else {
+						JOptionPane.showMessageDialog(null, result.getString("message"), "温馨提示",JOptionPane.WARNING_MESSAGE);
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 			}
 		});
 		panel.add(button);
