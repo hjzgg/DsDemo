@@ -14,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,7 +34,6 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JTextPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.event.CaretEvent;
@@ -51,11 +50,15 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.TabSet;
+import javax.swing.text.TabStop;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -65,12 +68,11 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import sun.font.FontDesignMetrics;
+
 import com.ds.controler.TreeMenuControler;
-import com.ds.panel.EditCodePane.NewAction;
 import com.ds.tools.CompileAndRunJavaFile;
 import com.ds.tools.MyTimer;
-
-import sun.font.FontDesignMetrics;
 
 //代码编辑 以及 题目浏览 的面板
 public class EditCodeAndBrowse extends JPanel{
@@ -339,6 +341,12 @@ class EditCodePane extends JPanel{
 		    new NewFontStyle(),
 		    new AboutAction()
 		  };
+		 
+		 StyleContext sc = StyleContext.getDefaultStyleContext();
+		 TabSet tabs = new TabSet(new TabStop[] { new TabStop(10) });
+		 AttributeSet paraSet = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.TabSet, tabs);
+		 textPane.setParagraphAttributes(paraSet, false);
+		 
 		 textPane.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {

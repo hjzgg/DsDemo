@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.ds.panel.CommunicationPanel;
 import com.ds.panel.EditCodeAndBrowse;
@@ -32,7 +34,7 @@ public class MainFrame extends JFrame{
     private final JMenuItem[] functionItems = new JCheckBoxMenuItem[tabText.length];
     private final JMenuItem componentTabItem = new JCheckBoxMenuItem("设置为可关闭的tab");
     public MainFrame(String title) {
-       //设置frame标题名
+       //设置frame标题名 
        super(title);
        //设置关闭方式
        addWindowListener(new WindowAdapter() {
@@ -50,6 +52,16 @@ public class MainFrame extends JFrame{
        pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
        //将tabpane添加到frame中
        add(pane);
+       
+       pane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+			    JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
+			    int selectedIndex = tabbedPane.getSelectedIndex();
+				if(tabbedPane.getSelectedComponent() instanceof CommunicationPanel) ((CommunicationPanel)tabbedPane.getSelectedComponent()).getLoginPanel().initCodeImage();
+			}
+       });
+       
        //设置界面外观的样式
        try {
     	   UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");

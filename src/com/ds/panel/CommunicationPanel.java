@@ -20,6 +20,7 @@ public class CommunicationPanel extends JPanel{
 	public void switchPanel(int panelIndex){
 		if(panelIndex<0 || panelIndex>panels.length) return;
 		this.remove(panels[prePanelIndex]);
+		if(panels[panelIndex] instanceof LoginPanel) ((LoginPanel)panels[panelIndex]).initCodeImage();
 		this.add(panels[panelIndex], BorderLayout.CENTER);
 		prePanelIndex = panelIndex;
 		this.updateUI();
@@ -30,5 +31,9 @@ public class CommunicationPanel extends JPanel{
 		//从文件中读取用户信息（用户名 和 密码）
 		this.setLayout(new BorderLayout());
 		this.add(panels[0], BorderLayout.CENTER);
+	}
+	
+	public LoginPanel getLoginPanel(){
+		return loginPanel;
 	}
 }

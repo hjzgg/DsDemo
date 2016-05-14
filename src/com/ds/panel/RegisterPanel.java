@@ -31,6 +31,7 @@ public class RegisterPanel extends JPanel{
 	private JTextField usernameFiled;
 	private JPasswordField passwodFiled;
 	private JPasswordField comfirmFiled;
+	private JTextField emailField;
 	public RegisterPanel(CommunicationPanel pPanel) {
 		this.parentPanel = pPanel;
 		setLayout(new BorderLayout(0, 0));
@@ -59,7 +60,7 @@ public class RegisterPanel extends JPanel{
 		registerPanel = new JPanel();
 		registerPanel.setBorder(BorderFactory.createTitledBorder("用户注册"));
 		panel_center.add(registerPanel);
-		registerPanel.setLayout(new GridLayout(4, 1, 0, 0));
+		registerPanel.setLayout(new GridLayout(5, 1, 0, 0));
 		
 		JPanel panel_register_name = new JPanel();
 		registerPanel.add(panel_register_name);
@@ -72,6 +73,16 @@ public class RegisterPanel extends JPanel{
 		usernameFiled.setToolTipText("\u7528\u6237\u540D");
 		panel_register_name.add(usernameFiled);
 		usernameFiled.setColumns(20);
+		
+		JPanel panel_register_email = new JPanel();
+		registerPanel.add(panel_register_email);
+		panel_register_email.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		JLabel emailLabel = new JLabel("邮件");
+		panel_register_email.add(emailLabel);
+		emailField = new JTextField();
+		emailField.setToolTipText("邮件");
+		panel_register_email.add(emailField);
+		emailField.setColumns(20);
 		
 		JPanel panel_register_password = new JPanel();
 		registerPanel.add(panel_register_password);
@@ -116,6 +127,7 @@ public class RegisterPanel extends JPanel{
 						JSONObject jsono = new JSONObject();
 						jsono.put("username", URLEncoder.encode(usernameFiled.getText(), "utf-8"));
 						jsono.put("password", passwodFiled.getText());
+						jsono.put("email", emailField.getText());
 						String data = JavaRequest.sendPost("userRegister", jsono);
 						JSONObject result = JSONObject.fromObject(data);
 						if((Boolean) result.get("success")){

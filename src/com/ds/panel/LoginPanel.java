@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.net.URLEncoder;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -32,10 +33,20 @@ public class LoginPanel extends JPanel{
 	private JPanel loginPanel = null;
 	private JTextField usernameFiled;
 	private JPasswordField passwodFiled;
+	private JTextField codeField;
+	private JLabel codeImgLabel;
+	
+	public void initCodeImage(){
+		ImageIcon codeImg = JavaRequest.getCodeImage();
+		if(codeImg == null){
+			codeImg = new ImageIcon("image/badImage.png");
+		}
+		codeImgLabel.setIcon(codeImg);
+	}
+	
 	public LoginPanel(CommunicationPanel pPanel) {
 		this.parentPanel = pPanel;
 		setLayout(new BorderLayout(0, 0));
-		
 		
 		JPanel panel_left = new JPanel();
 		panel_left.setPreferredSize(new Dimension(400, 0));
@@ -61,7 +72,7 @@ public class LoginPanel extends JPanel{
 		loginPanel = new JPanel();
 		loginPanel.setBorder(BorderFactory.createTitledBorder("用户登录"));
 		panel_center.add(loginPanel);
-		loginPanel.setLayout(new GridLayout(4, 1, 0, 0));
+		loginPanel.setLayout(new GridLayout(5, 1, 0, 0));
 		
 		JPanel panel_login_name = new JPanel();
 		loginPanel.add(panel_login_name);
@@ -85,6 +96,31 @@ public class LoginPanel extends JPanel{
 		panel_login_password.add(passwodFiled);
 		passwodFiled.setColumns(20);
 		
+		JPanel panel_login_code = new JPanel();
+		loginPanel.add(panel_login_code);
+		panel_login_code.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		JLabel codeLabel = new JLabel("验证码");
+		panel_login_code.add(codeLabel);
+		
+		codeField = new JTextField(8);
+		panel_login_code.add(codeField);
+		
+		codeImgLabel = new JLabel();
+		codeImgLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ImageIcon codeImg = JavaRequest.getCodeImage();
+				if(codeImg == null){
+					codeImg = new ImageIcon("image/badImage.png");
+				}
+				((JLabel)e.getSource()).setIcon(codeImg);
+			}
+		});
+		
+		codeImgLabel.setPreferredSize(new Dimension(55, 25));
+		panel_login_code.add(codeImgLabel);
+		
 		JPanel panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
 		flowLayout.setHgap(20);
@@ -105,6 +141,8 @@ public class LoginPanel extends JPanel{
 					JSONObject jsono = new JSONObject();
 					jsono.put("username", usernameFiled.getText());
 					jsono.put("password", passwodFiled.getText());
+					jsono.put("code", codeField.getText());
+					jsono.put("codeAuth", JavaRequest.codeAuth);
 					String data = JavaRequest.sendPost("userLogin", jsono);
 					JSONObject result = JSONObject.fromObject(data);
 					if((Boolean) result.get("success")){
@@ -114,6 +152,7 @@ public class LoginPanel extends JPanel{
 						//切换到用户交流信息面板
 						parentPanel.switchPanel(CommunicationPanel.MESSAGE_PANEL);
 					} else {
+						initCodeImage();//重新加载验证码
 						JOptionPane.showMessageDialog(null, result.getString("message"), "温馨提示",JOptionPane.WARNING_MESSAGE);
 					}
 				} catch (Exception ex) {

@@ -8,6 +8,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.TabSet;
+import javax.swing.text.TabStop;
 
 import com.ds.dialog.MyDialog;
 import com.ds.main.MainFrame;
@@ -93,10 +99,17 @@ public class DrawControler {
 		this.model = model;
 		model.addObserver(drawPanel);
 		this.drawPanel.setBackground(Color.WHITE);
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		TabSet tabs = new TabSet(new TabStop[] { new TabStop(20) });
+		AttributeSet paraSet = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.TabSet, tabs);
 		codePanel = new JTextPane();
 		codePanel.setEditable(false);
+		codePanel.setParagraphAttributes(paraSet, false);
+		
 		msgPanel = new JTextPane();
 		msgPanel.setEditable(false);
+		msgPanel.setParagraphAttributes(paraSet, false);
+		
 		JPanel backCodePanel = new JPanel(new BorderLayout());
 		backCodePanel.add(codePanel, BorderLayout.CENTER);
 		JPanel backMsgPanel = new JPanel(new BorderLayout());

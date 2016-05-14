@@ -1,6 +1,7 @@
 package com.ds.panel.chat;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -8,6 +9,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
@@ -33,15 +35,20 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
+import javax.swing.text.StyledEditorKit.StyledTextAction;
 
 import net.sf.json.JSONObject;
 
+import com.ds.dialog.EmailDialog;
 import com.ds.page.MyMessage;
 import com.ds.page.MyPage;
 import com.ds.page.MyPagePanel;
 import com.ds.panel.CommunicationPanel;
 import com.ds.tools.JavaRequest;
+import com.ds.underlineLabel.JLabelUnderLinePerfect;
 
 public class ChatPanel extends JPanel implements MouseListener{
 	private static final long serialVersionUID = 1L;
@@ -70,7 +77,7 @@ public class ChatPanel extends JPanel implements MouseListener{
 	private JComboBox fontName = null, fontSize = null,fontColor = null; 
 	/*插入按钮;清除按钮;插入图片按钮*/
 	private JButton b_pic = null;
-	 
+	private JButton b_email = null;
 	/*表情框*/
 	private PicsJWindow picWindow;
 	private List<PicInfo> myPicInfo = new LinkedList<PicInfo>();
@@ -79,7 +86,7 @@ public class ChatPanel extends JPanel implements MouseListener{
 		/* 图片信息*/
 		int pos;
 		String val;
-		public PicInfo(int pos,String val){
+		public PicInfo(int pos, String val){
 			this.pos = pos;
 			this.val = val;
 		}
@@ -245,6 +252,9 @@ public class ChatPanel extends JPanel implements MouseListener{
 		b_pic = new JButton("表情");
 		b_pic.addMouseListener(this);
 		b_pic.setFocusable(false);
+		b_email = new JButton("邮件");
+		b_email.setFocusable(false);
+		b_email.addMouseListener(this);
 		picWindow = new PicsJWindow(this);
 		 
 		Box box_1 = Box.createHorizontalBox();
@@ -252,6 +262,7 @@ public class ChatPanel extends JPanel implements MouseListener{
 		pagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		pagePanel.setOpaque(false);
 		box_1.add(b_pic);
+		box_1.add(b_email);
 		box_1.add(pagePanel);
 		
 		PaneLeftSouth.add(box_1, BorderLayout.NORTH);//字体、表情、震动
@@ -312,10 +323,10 @@ public class ChatPanel extends JPanel implements MouseListener{
 	FontAndText dateFont = new FontAndText("","宋体", 20, Color.BLUE);
 	public void addMsg(String userMsg, int alignment) {
 		dateFont.setText(userMsg);
-		insert(dateFont, alignment);
+		insert(dateFont, alignment, true);
 		pos2 = jpChat.getCaretPosition();
 		myFont.setText(jpMsg.getText());
-		insert(myFont, alignment);
+		insert(myFont, alignment, false);
 		insertPics(false);
 		jpMsg.setText("");
 	}
@@ -329,13 +340,13 @@ public class ChatPanel extends JPanel implements MouseListener{
 			}
 			String message = content.substring(content.indexOf("*****")+5);
 			dateFont.setText(userMsg);
-			insert(dateFont, alignment);/*时间和用户信息*/
+			insert(dateFont, alignment, true);/*时间和用户信息*/
 			int index = message.lastIndexOf("*****");
 			
 			/*很重要的，记录下聊天区域要插入聊天消息的开始位置，*/
 			pos1 = jpChat.getCaretPosition();
 			FontAndText attr = getRecivedFont(message.substring(0,index));
-			insert(attr, alignment);
+			insert(attr, alignment, false);
 			if(index>0 && index < message.length()-1){/*存在表情信息*/
 				receivedPicInfo(message.substring(index+5));
 				insertPics(true);
@@ -427,13 +438,35 @@ public class ChatPanel extends JPanel implements MouseListener{
 	 * @param alignment 对齐方式
 	 */
 	
-	private void insert(FontAndText attrib, int alignment) {
+	private void insert(FontAndText attrib, int alignment, boolean isUnderLine) {
 		try { // 插入文本
 			int lenBeforeInsert = docChat.getLength();
-			docChat.insertString(docChat.getLength(), attrib.getText() + "\n", attrib.getAttrSet());
 			//设置当前这一段的位置
 			SimpleAttributeSet posAttrSet = new SimpleAttributeSet();
 			StyleConstants.setAlignment(posAttrSet, alignment);
+			if(isUnderLine) {
+				StyleConstants.setUnderline(posAttrSet, true);
+				JLabelUnderLinePerfect userLabel = new JLabelUnderLinePerfect(attrib.getText());
+				userLabel.setUnderLineColor(Color.RED);
+				userLabel.setFont(new Font(attrib.getName(), Font.BOLD, attrib.getSize()));
+				userLabel.setForeground(attrib.getColor());
+				userLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+				userLabel.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						JLabelUnderLinePerfect curUserLabel = (JLabelUnderLinePerfect) e.getSource();
+						String userMsg = curUserLabel.getText();
+						EmailDialog emailDialog = new EmailDialog(null, true);
+						//获取用户的姓名
+						emailDialog.setUserMsg(userMsg.substring(0, userMsg.indexOf(" ")), parentPanel);
+						emailDialog.setVisible(true);
+					}
+				});
+				jpChat.insertComponent(userLabel);
+				docChat.insertString(docChat.getLength(), "\n", attrib.getAttrSet());
+			} else {
+				docChat.insertString(docChat.getLength(), attrib.getText() + "\n", attrib.getAttrSet());
+			}
 			docChat.setParagraphAttributes(lenBeforeInsert, docChat.getLength(), posAttrSet, true);
 			jpChat.setCaretPosition(docChat.getLength()); // 设置滚动到最下边
 		} catch (BadLocationException e) {
@@ -574,6 +607,9 @@ public class ChatPanel extends JPanel implements MouseListener{
 				sendMsg();
 			} else if (source == this.b_pic){
 				picWindow.setVisible(true);
+			} else if(source == this.b_email){//发送邮件
+				EmailDialog emailDialog = new EmailDialog(null, true);
+				emailDialog.setVisible(true);
 			}
 		}
 	}
