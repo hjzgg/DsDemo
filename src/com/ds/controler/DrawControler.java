@@ -143,6 +143,12 @@ public class DrawControler {
 		}
 		
 		public void showStack(){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "栈模拟");
+				jsono.put("模拟方式: ", "随机模拟"); 
+				PanelControler.initMsgPanelText(jsono);
+			}
 			stackModel.showStack();
 			model.setViewChanged();
 		}
@@ -154,6 +160,12 @@ public class DrawControler {
 			queueModel = ((QueueModel)model.getModel("QueueModel", new Object[]{model}));
 		}
 		public void showQueue(){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "队列模拟");
+				jsono.put("模拟方式: ", "随机模拟"); 
+				PanelControler.initMsgPanelText(jsono);
+			}
 			queueModel.showQueue();
 			model.setViewChanged();
 		}
