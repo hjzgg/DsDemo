@@ -2,6 +2,7 @@ package com.ds.controler;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -15,6 +16,9 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
+import net.sf.json.JSONObject;
+
+import com.ds.constants.MsgPanelConstants;
 import com.ds.dialog.MyDialog;
 import com.ds.main.MainFrame;
 import com.ds.model.ArrayModel;
@@ -107,6 +111,7 @@ public class DrawControler {
 		codePanel.setParagraphAttributes(paraSet, false);
 		
 		msgPanel = new JTextPane();
+		msgPanel.setFont(new Font("宋体", Font.BOLD, 16));
 		msgPanel.setEditable(false);
 		msgPanel.setParagraphAttributes(paraSet, false);
 		
@@ -149,12 +154,6 @@ public class DrawControler {
 			queueModel = ((QueueModel)model.getModel("QueueModel", new Object[]{model}));
 		}
 		public void showQueue(){
-//			MyDialog dialog = new MyDialog(PanelControler.mainFrame, "队列演示", true, MyDialog.MODEL_TYPE_OTHER);
-//			dialog.setDataDemoContent("A B C D E F G H");
-//			dialog.setDataFormatContent("节点值 节点值 节点值....");
-//			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//			dialog.setVisible(true);
-//			setData(dialog.getData());
 			queueModel.showQueue();
 			model.setViewChanged();
 		}
@@ -171,7 +170,18 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值,节点值....");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			setData(dialog.getData());
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "显示数组");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			arrayModel.createArrayData(data, false);
 			model.setViewChanged();
 		}
@@ -181,7 +191,18 @@ public class DrawControler {
 			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
 			dialog.setDataFormatContent("节点值,节点值,节点值....");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			dialog.setVisible(true);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "显示创建");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			setData(dialog.getData());
 			arrayModel.showArrayCreate(data);
 		}
@@ -192,10 +213,23 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值..;插入值;位置");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			String[] datas = tmpData.split(";");
 			if(datas.length != 3) return;
 			setData(datas[0]);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "数组插入");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				jsono.put("插入值: ", datas[1]);
+				jsono.put("插入位置: ", datas[2]);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			arrayModel.createArrayData(data, true);
 			model.setViewChanged();
 			arrayModel.showArrayInsert(datas[1], Integer.parseInt(datas[2]));
@@ -207,10 +241,22 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值..;删除位置");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			String[] datas = tmpData.split(";");
 			if(datas.length != 2) return;
 			setData(datas[0]);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "数组删除");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				jsono.put("删除位置: ", datas[1]);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			arrayModel.createArrayData(data, false);
 			model.setViewChanged();
 			arrayModel.showArrayDelete(Integer.parseInt(datas[1]));
@@ -228,8 +274,19 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值,节点值...");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			setData(tmpData);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "显示链表");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.createListData(data);
 			model.setViewChanged();
 		}
@@ -240,8 +297,19 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值,节点值...");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			setData(tmpData);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "创建链表");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.showListCreate(data);
 		}
 		
@@ -251,10 +319,23 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值..;插入值;位置");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			String[] datas = tmpData.split(";");
 			if(datas.length != 3) return;
 			setData(datas[0]);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "链表插入");
+				String[] contents = datas[0].split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				jsono.put("插入值", datas[1]);
+				jsono.put("插入位置", datas[2]);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.createListData(data);
 			model.setViewChanged();
 			listModel.showListInsert(datas[1], Integer.parseInt(datas[2]));
@@ -266,10 +347,22 @@ public class DrawControler {
 			dialog.setDataFormatContent("节点值,节点值..;删除位置");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
+			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			String[] datas = tmpData.split(";");
 			if(datas.length != 2) return;
 			setData(datas[0]);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "链表插入");
+				String[] contents = datas[0].split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				jsono.put("删除位置", datas[1]);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.createListData(data);
 			model.setViewChanged();
 			listModel.showListDelete(Integer.parseInt(datas[1]));
@@ -280,9 +373,26 @@ public class DrawControler {
 			dialog.setDataDemoContent("A,F,G,I;B,C,D,X");
 			dialog.setDataFormatContent("链表1;链表2");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
+			dialog.setVisible(true);	if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			setData(tmpData);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "链表合并之生成新链表");
+				String[] list = data.split(";");
+				String[] contents = list[0].split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put("链表1: ", sb.toString());
+				
+				contents = list[1].split(",");
+				sb.delete(0, sb.length());
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put("链表2: ", sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.showListMergeForThree(data);
 			model.setViewChanged();
 			listModel.beginListMergeForThree();
@@ -293,9 +403,26 @@ public class DrawControler {
 			dialog.setDataDemoContent("A,F,G,I;B,C,D,X");
 			dialog.setDataFormatContent("链表1;链表2");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
+			dialog.setVisible(true);	if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			String tmpData = dialog.getData();
 			setData(tmpData);
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "链表合并之就地合并");
+				String[] list = data.split(";");
+				String[] contents = list[0].split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put("链表1: ", sb.toString());
+				
+				contents = list[1].split(",");
+				sb.delete(0, sb.length());
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put("链表2: ", sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			listModel.showListMergeForOne(data);
 		}
 	}
@@ -312,51 +439,69 @@ public class DrawControler {
 			return dialog.getData();
 		}
 		
-		public void showBTreeView(){
+		private void initMsgPanelText(String title){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, title);
+				jsono.put(MsgPanelConstants.DATA, data);
+				jsono.put("注: ", "'?'表示空节点");
+				PanelControler.initMsgPanelText(jsono);
+			}
+		}
+		
+		public void showBTreeView() {
 			setData(initDialog("二叉树显示"));
+			initMsgPanelText("二叉树显示");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.createBTreeData(data);
 			model.setViewChanged();
 		}
 		
-		public void showPreCreateBTree(){
+		public void showPreCreateBTree() {
 			setData(initDialog("二叉树先序创建"));
+			initMsgPanelText("二叉树先序创建");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPreCreateBTree(data);
 		}
 		
 		public void showInorCreateBTree(){
 			setData(initDialog("二叉树中序创建"));
+			initMsgPanelText("二叉树中序创建");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showInorCreateBTree(data);
 		}
 		
 		public void showPostCreateBTree(){
 			setData(initDialog("二叉树后序创建"));
+			initMsgPanelText("二叉树后序创建");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPostCreateBTree(data);
 		}
 		
 		public void showPreData(){
 			setData(initDialog("二叉树先序遍历"));
+			initMsgPanelText("二叉树先序遍历");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPreData(data);
 		}
 		
 		public void showInorData(){
 			setData(initDialog("二叉树中序遍历"));
+			initMsgPanelText("二叉树中序遍历");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showInorData(data);
 		}
 		
 		public void showPostData(){
 			setData(initDialog("二叉树后序遍历"));
+			initMsgPanelText("二叉树后序遍历");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showPostData(data);
 		}
 		
 		public void showBTreeToForest(){
 			setData(initDialog("二叉树转化为森林"));
+			initMsgPanelText("二叉树转换为森立");
 			bTreeModel = ((BTreeModel)model.getModel("BTreeModel", new Object[]{model}));
 			bTreeModel.showBTreeToForest(data);
 		}
@@ -377,8 +522,31 @@ public class DrawControler {
 			return dialog.getData();
 		}
 		
+		private void initMsgPanelText(String title){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, title);
+				jsono.put("图类型: ", this.isDirected ? "有向图" : "无向图");
+				jsono.put("权值: ", this.isWeighted ? "有权值" : "无权值");
+				StringBuilder sb = new StringBuilder();
+				String[] contents = data.split(",");
+				for(int i=0; i<contents.length; ++i){
+					if(i == 0) sb.append("\n");
+					sb.append(contents[i]);
+					if(i+1 < contents.length){
+						sb.append("      ").append(contents[++i]).append("\n");
+					} else {
+						sb.append("\n");
+					}
+				}
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
+		}
+		
 		public void showGraphicView(){
 			setData(initDialog("图的创建"));
+			initMsgPanelText("图的创建");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.createGraphicData(data);
 			model.setViewChanged();
@@ -386,36 +554,42 @@ public class DrawControler {
 		
 		public void BFSGraphic(){
 			setData(initDialog("BFS遍历"));
+			initMsgPanelText("BFS遍历");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.BFSGraphic(data);
 		}
 		
 		public void DFSGraphic(){
 			setData(initDialog("DFS遍历"));
+			initMsgPanelText("DFS遍历");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.DFSGraphic(data);
 		}
 		
 		public void dijkstra(){
 			setData(initDialog("Dijkstra算法"));
+			initMsgPanelText("Dijkstra算法");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.dijkstra(data);
 		}
 		
 		public void prim(){
 			setData(initDialog("Prim算法"));
+			initMsgPanelText("prim算法");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.prim(data);
 		}
 		
 		public void kruskal(){
 			setData(initDialog("Kruskal算法"));
+			initMsgPanelText("Kruskal算法");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.kruskal(data);
 		}
 		
 		public void floyd(){
-			setData(initDialog("Kruskal算法"));
+			setData(initDialog("Floyd算法"));
+			initMsgPanelText("Floyd算法");
 			graphicModel = (GraphicModel) model.getModel("GraphicModel", new Object[]{model, isDirected, isWeighted});
 			graphicModel.floyd(data);
 		}
@@ -423,12 +597,31 @@ public class DrawControler {
 	
 	public class GListControler{
 		private GListModel gListModel = null;
-		private String tmpData = "X=(A,(b,c,d));A=(k,(a,x,y))";
+		private String initDialog(String title){
+			MyDialog dialog = new MyDialog(PanelControler.mainFrame, title, true, MyDialog.MODEL_TYPE_OTHER);
+			dialog.setDataDemoContent("X=(A,(b,c,d));A=(k,(a,x,y))");
+			dialog.setDataFormatContent("节点=子表;节点=子表...");
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+			return dialog.getData();
+		}
 		public GListControler(){
 			gListModel = ((GListModel)model.getModel("GListModel", new Object[]{model}));
 		}
 		public void showGListView(){
-			setData(tmpData);
+			setData(initDialog("广义表显示"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "广义表显示");
+				StringBuilder sb = new StringBuilder();
+				String[] contents = data.split(";");
+				for(int i=0; i<contents.length; ++i){
+					if(i == 0) sb.append("\n");
+					sb.append(contents[i]).append("\n");
+				}
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			gListModel.createGListData(data);
 			model.setViewChanged();
 		}
@@ -451,6 +644,19 @@ public class DrawControler {
 		}
 		public void showCrossListView(){
 			setData(initDialog("十字链表显示"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "十字链表显示");
+				jsono.put("图类型", this.isDirected ? "有向图" : "无向图");
+				StringBuilder sb = new StringBuilder();
+				String[] contents = data.split(";");
+				for(int i=0; i<contents.length; ++i){
+					if(i == 0) sb.append("\n");
+					sb.append(contents[i]).append("\n");
+				}
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			crossListModel = (CrossListModel) model.getModel("CrossListModel", new Object[]{model, isDirected});
 			crossListModel.createCrossListData(data);
 			model.setViewChanged();
@@ -459,8 +665,25 @@ public class DrawControler {
 	
 	public class ForestControler{
 		private ForestModel forestModel = null;
+		
+		private void initMsgPanelText(String title){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, title);
+				StringBuilder sb = new StringBuilder();
+				String[] contents = data.split(";");
+				for(int i=0; i<contents.length; ++i){
+					if(i == 0) sb.append("\n");
+					sb.append(contents[i]).append("\n");
+				}
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
+		}
+		
 		public void showFroestCreataData(){
 			setData(initDialog("森林创建"));
+			initMsgPanelText("森林创建");
 			forestModel = (ForestModel) model.getModel("ForestModel", new Object[]{model});
 			forestModel.showFroestCreataData(data);
 			model.setViewChanged();
@@ -475,6 +698,7 @@ public class DrawControler {
 		}
 		public void showForestToBTree(){
 			setData(initDialog("森林转二叉树"));
+			initMsgPanelText("森林转二叉树");
 			forestModel = (ForestModel) model.getModel("ForestModel", new Object[]{model});
 			forestModel.showForestToBTree(data);
 		}
@@ -499,6 +723,13 @@ public class DrawControler {
 		
 		public void showSegmentTreeView(){
 			setData(initDialog("线段树显示"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "线段树显示");
+				jsono.put("显示方式: ", !minOrMax ? "最小值" : "最大值");
+				jsono.put(MsgPanelConstants.DATA, data);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			segmentTreeModel = (SegmentTreeModel) model.getModel("SegmentTreeModel", new Object[]{model, minOrMax});
 			segmentTreeModel.createSegmentTreeData(data);
 			model.setViewChanged();
@@ -517,6 +748,12 @@ public class DrawControler {
 		}
 		public void showBinaryIndexedTreeView(){
 			setData(initDialog("树状数组展示"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "树状数组展示");
+				jsono.put(MsgPanelConstants.DATA, data);
+				PanelControler.initMsgPanelText(jsono);
+			}
 			binaryIndexedTreeModel = ((BinaryIndexedTreeModel)model.getModel("BinaryIndexedTreeModel", new Object[]{model}));
 			binaryIndexedTreeModel.createBinaryIndexedTreeData(data);
 			model.setViewChanged();
@@ -533,23 +770,38 @@ public class DrawControler {
 			dialog.setVisible(true);
 			return dialog.getData();
 		}
+		
+		private void initMsgPanelText(String title){
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, title);
+				String[] strings = data.split(";");
+				jsono.put("原串: ", strings[0]);
+				jsono.put("目标串: ", strings[1]);
+				PanelControler.initMsgPanelText(jsono);
+			}
+		}
+		
 		public StringControler(){
 			stringModel = (StringModel) model.getModel("StringModel", new Object[]{model});
 		}
 		public void BF(){
 			setData(initDialog("字符串BF匹配算法"));
+			initMsgPanelText("字符串BF匹配算法");
 			String[] datas = data.split(";");
 			stringModel.BF(datas[0], datas[1]);
 		}
 		
 		public void KMP_NEXT(){
 			setData(initDialog("字符串KMP_NEXT算法"));
+			initMsgPanelText("字符串KMP_NEXT算法");
 			String[] datas = data.split(";");
 			stringModel.KMP_NEXTOrNEXTVAL(datas[0], datas[1], true);
 		}
 		
 		public void KMP_NEXTVAL(){
 			setData(initDialog("字符串KMP_NEXTVAL算法"));
+			initMsgPanelText("字符串KMP_NEXTVAL算法");
 			String[] datas = data.split(";");
 			stringModel.KMP_NEXTOrNEXTVAL(datas[0], datas[1], false);
 		}
@@ -569,6 +821,17 @@ public class DrawControler {
 		}
 		public void selectiveSort(){
 			setData(initDialog("选择排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "选择排序模拟");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			selectiveSortModel = (SelectiveSortModel) model.getModel("SelectiveSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			selectiveSortModel.selectiveSort(data, minOrMax);
@@ -589,6 +852,17 @@ public class DrawControler {
 		private boolean minOrMax = false;
 		public void insertSort(){
 			setData(initDialog("简单插入排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "简单插入排序模拟");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			sampleInsertSortModel = (SampleInsertSortModel) model.getModel("SampleInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			sampleInsertSortModel.insertSort(data, minOrMax);
@@ -609,6 +883,17 @@ public class DrawControler {
 		}
 		public void binaryInsertSort(){
 			setData(initDialog("二分插入排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "二分插入排序模拟");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			binaryInsertSortModel = (BinaryInsertSortModel) model.getModel("BinaryInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			binaryInsertSortModel.binaryInsertSort(data, minOrMax);
@@ -629,6 +914,17 @@ public class DrawControler {
 		}
 		public void bubbleSort(){
 			setData(initDialog("起泡排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "气泡排序");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			bubbleSortModel = (BubbleSortModel) model.getModel("BubbleSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			bubbleSortModel.bubbleSort(data, minOrMax);
@@ -654,6 +950,18 @@ public class DrawControler {
 		 
 		public void quickSort(){
 			setData(initDialog("快速排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "快速排序模拟");
+				jsono.put("快排选择: ", firstOrSecond ? "两指针" : "一指针");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			//快排的方式1 或者 方式2
 			quickSortModel = (QuickSortModel) model.getModel("QuickSortModel", new Object[]{model, firstOrSecond});
 			//从小到大或者从大到小排序
@@ -675,6 +983,17 @@ public class DrawControler {
 		}
 		public void mergeSort(){
 			setData(initDialog("归并排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "归并排序模拟");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			mergeSortModel = (MergeSortModel) model.getModel("MergeSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			mergeSortModel.mergeSort(data, minOrMax);
@@ -695,6 +1014,17 @@ public class DrawControler {
 		}
 		public void heapSort(){
 			setData(initDialog("堆排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "堆排序模拟");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			heapSortModel = (HeapSortModel) model.getModel("HeapSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			heapSortModel.heapSort(data, minOrMax);
@@ -723,6 +1053,17 @@ public class DrawControler {
 		
 		public void insertSort(){
 			setData(initDialog("希尔排序"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "希尔排序");
+				jsono.put("排序方式: ", minOrMax ? "由小到大" : "由大到小");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			shellInsertSortModel = (ShellInsertSortModel) model.getModel("ShellInsertSortModel", new Object[]{model});
 			//从小到大或者从大到小排序
 			shellInsertSortModel.insertSort(data, minOrMax, dk);
@@ -755,6 +1096,18 @@ public class DrawControler {
 		
 		public void radixSort(){
 			setData(initDialog("基数排序模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "基数排序模拟");
+				jsono.put("排序方式: ", lsdOrMsd ? "LSD方式" : "MSD方式");
+				if(lsdOrMsd) jsono.put("模拟方式: ", oneOrTwo ? "方式1" : "方式2");
+				String[] contents = data.split(",");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put(MsgPanelConstants.DATA, sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			//LSD或者是MSD
 			radixSortModel = (RadixSortModel) model.getModel("RadixSortModel", new Object[]{model, lsdOrMsd});
 			//从小到大或者从大到小排序
@@ -775,6 +1128,16 @@ public class DrawControler {
 		}
 		public void unionFindSet(){
 			setData(initDialog("并查集模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, "并查集模拟");
+				String[] contents = data.split(";");
+				StringBuilder sb = new StringBuilder();
+				for(String content : contents)
+					sb.append(content).append(" ");
+				jsono.put("附属关系", sb.toString());
+				PanelControler.initMsgPanelText(jsono);
+			}
 			unionFindSetModel = (UnionFindSetModel) model.getModel("UnionFindSetModel", new Object[]{model});
 			unionFindSetModel.unionFindSet(data);
 		}

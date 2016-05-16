@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import com.ds.controler.PanelControler;
 import com.ds.shape.DsLine;
 import com.ds.shape.DsRect;
 import com.ds.shape.Shape;
@@ -17,17 +18,17 @@ public class ArrayModel{
 	private ArrayList<ArrayNode> nodeList = null;
 	private DrawModel model;
 	//创建过程的显示
-	public void showArrayCreate(String data){
+	public void showArrayCreate(String data) {
 		ArrayList<Shape> shapeList = model.getShapeList();
 		String[] contents = data.split(",");
 		int left = 0, top =  ShapeSize.ArrayModel.TOP_MARGIN-ShapeSize.ArrayModel.ROW_HEIGHT;
 		DsRect rect = null;
-		for(int i=0; i<contents.length; ++i){
+		for(int i=0; i<contents.length; ++i) {
 			synchronized (Shape.class) {
 				if(i % ShapeSize.ArrayModel.ROW_NUM == 0){//新的一行的第一个节点
 					int preTop = top;//上一行
 					top += ShapeSize.ArrayModel.ROW_HEIGHT;//下一行
-					if(i != 0){//添加行与行之间的折线
+					if(i != 0) {//添加行与行之间的折线
 						int preRowMidTop = (preTop*2+ShapeSize.ArrayModel.RECT_HEIGHT)/2;
 						int rowAndRowMidTop = (preTop+ShapeSize.ArrayModel.RECT_HEIGHT+top)/2;
 						DsLine lineCol1 = new DsLine(left, preRowMidTop, left, rowAndRowMidTop, false);

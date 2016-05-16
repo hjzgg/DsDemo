@@ -15,6 +15,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import net.sf.json.JSONObject;
+
 import com.ds.button.FunctionButton;
 import com.ds.main.MainFrame;
 import com.ds.panel.FunctionPanel;
@@ -219,5 +221,13 @@ public class PanelControler {
 		public int compareTo(FunctionMsgPanel o) {
 			return this.hashCode() - o.hashCode();
 		}
+	}
+	
+	public static void initMsgPanelText(JSONObject params){
+		StringBuilder sb = new StringBuilder();
+		for(Object key : params.keySet()){
+			sb.append(key).append(params.get(key)).append("\n");
+		}
+		drawControler.getMsgPanel().setText(sb.toString());
 	}
 }
