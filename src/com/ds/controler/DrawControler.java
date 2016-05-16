@@ -1143,11 +1143,14 @@ public class DrawControler {
 			{
 				JSONObject jsono = new JSONObject();
 				jsono.put(MsgPanelConstants.TITLE, "并查集模拟");
-				String[] contents = data.split(";");
+				String[] datas = data.split(";"); 
+				jsono.put("结点: ", datas[0]);
+				String[] contents = datas[1].split(",");
 				StringBuilder sb = new StringBuilder();
+				sb.append("\n");
 				for(String content : contents)
-					sb.append(content).append(" ");
-				jsono.put("附属关系", sb.toString());
+					sb.append(content).append("\n");
+				jsono.put("附属关系: ", sb.toString());
 				PanelControler.initMsgPanelText(jsono);
 			}
 			unionFindSetModel = (UnionFindSetModel) model.getModel("UnionFindSetModel", new Object[]{model});
