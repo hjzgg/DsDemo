@@ -4,9 +4,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -15,12 +17,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import com.ds.button.CreateIconButton;
 
 public class MyDialog extends JDialog {
 	//文本的字体
@@ -118,7 +123,8 @@ public class MyDialog extends JDialog {
 	
 	private void initSortType(){
 		JPanel rightPanel = new JPanel();
-		rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		rightPanel.setOpaque(false);
+		rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 		selectPane.add(rightPanel);
 		JLabel weightLable = null;
 		if(sortType == SORT_QUICK_TYPE){
@@ -136,6 +142,7 @@ public class MyDialog extends JDialog {
 			rightPanel.add(weightBox);
 		} else if(sortType == SORT_SHELL_TYPE){
 			weightLable = new JLabel("步长:");
+			
 			rightPanel.add(weightLable);
 			final String STEP_DEMO = "5 3 1";
 			stepFiled.setText(STEP_DEMO);
@@ -154,6 +161,7 @@ public class MyDialog extends JDialog {
 			});
 			rightPanel.add(stepFiled);
 		}
+		weightLable.setOpaque(true);
 		weightLable.setFont(myFont);
 	}
 	/**
@@ -164,6 +172,11 @@ public class MyDialog extends JDialog {
 	 */
 	public MyDialog(Frame owner, String title, boolean modal, final int modelType) {
 		super(owner, title, modal);
+		ImageIcon imageIcon = new ImageIcon("image/dialog_bg.jpg");
+		JLabel imgLabel = new JLabel(imageIcon);//将背景图放在标签里。
+		this.getLayeredPane().add(imgLabel, new Integer(Integer.MIN_VALUE));//注意这里是关键，将背景标签添加到dialog的LayeredPane面板里。
+		imgLabel.setBounds(0, 0, imageIcon.getIconWidth(), imageIcon.getIconHeight());//设置背景标签的位置
+		((JPanel)this.getContentPane()).setOpaque(false);
 		GridLayout dialogLayout = null;
 		if(modelType != MODEL_TYPE_OTHER)
 			dialogLayout = new GridLayout(5, 1, 5, 5);
@@ -181,11 +194,16 @@ public class MyDialog extends JDialog {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 10, 10);
 		
+		typeBox.setFont(new Font("宋体", Font.BOLD, 18));
+		weightBox.setFont(new Font("宋体", Font.BOLD, 18));
+		
 		//添加输入数据文本框
 		JPanel dataBackPane = new JPanel();
+		dataBackPane.setOpaque(false);
 		GridBagLayout dataPaneLayout = new GridBagLayout();
 		dataBackPane.setLayout(dataPaneLayout);
 		JLabel dataLabel = new JLabel("数据:");
+		dataLabel.setOpaque(true);
 		dataLabel.setFont(myFont);
 		dataFiled.setFont(myFont);
 		dataBackPane.add(dataLabel);
@@ -201,9 +219,11 @@ public class MyDialog extends JDialog {
 		
 		//添加数据格式
 		JPanel formatBackPane = new JPanel();
+		formatBackPane.setOpaque(false);
 		GridBagLayout formatPaneLayout = new GridBagLayout();
 		formatBackPane.setLayout(formatPaneLayout);
 		JLabel formatLabel = new JLabel("格式:");
+		formatLabel.setOpaque(true);
 		formatLabel.setFont(myFont);
 		this.formatFiled.setFont(myFont);
 		formatBackPane.add(formatLabel);
@@ -219,9 +239,11 @@ public class MyDialog extends JDialog {
 		
 		//添加数据样例
 		JPanel demoBackPane = new JPanel();
+		demoBackPane.setOpaque(false);
 		GridBagLayout demoPaneLayout = new GridBagLayout();
 		demoBackPane.setLayout(demoPaneLayout);
 		JLabel demoLabel = new JLabel("样例:");
+		demoLabel.setOpaque(true);
 		demoLabel.setFont(myFont);
 		demoFiled.setFont(myFont);
 		demoBackPane.add(demoLabel);
@@ -238,12 +260,15 @@ public class MyDialog extends JDialog {
 		//添加图的权值选项， 还有类型
 		if(modelType == MODEL_TYPE_GRAPHIC){
 			selectPane = new JPanel();
+			selectPane.setOpaque(false);
 			GridLayout selectLayout = new GridLayout(1, 2);
 			selectPane.setLayout(selectLayout);
 			JPanel leftPanel = new JPanel();
+			leftPanel.setOpaque(false);
 			leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
 			selectPane.add(leftPanel);
 			JLabel typeLable = new JLabel("类型:");
+			typeLable.setOpaque(true);
 			typeLable.setFont(myFont);
 			typeBox.addItem("无向图");
 			typeBox.addItem("有向图");
@@ -251,9 +276,11 @@ public class MyDialog extends JDialog {
 			leftPanel.add(typeBox);
 			
 			JPanel rightPanel = new JPanel();
+			rightPanel.setOpaque(false);
 			rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			selectPane.add(rightPanel);
 			JLabel weightLable = new JLabel("权值:");
+			weightLable.setOpaque(true);
 			weightLable.setFont(myFont);
 			weightBox.addItem("无权值");
 			weightBox.addItem("有权值");
@@ -263,9 +290,11 @@ public class MyDialog extends JDialog {
 			add(selectPane);
 		} else if(modelType != MODEL_TYPE_OTHER){
 			selectPane = new JPanel();
+			selectPane.setOpaque(false);
 			GridLayout selectLayout = new GridLayout(1, 2);
 			selectPane.setLayout(selectLayout);
 			JPanel leftPanel = new JPanel();
+			leftPanel.setOpaque(false);
 			leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
 			selectPane.add(leftPanel);
 			JLabel typeLable = null;
@@ -282,6 +311,7 @@ public class MyDialog extends JDialog {
 				typeBox.addItem("堆栈");
 				typeBox.addItem("二叉树");
 			}
+			typeLable.setOpaque(true);
 			typeLable.setFont(myFont);
 			leftPanel.add(typeLable);
 			leftPanel.add(typeBox);
@@ -289,8 +319,9 @@ public class MyDialog extends JDialog {
 		}  
 		//添加确定按钮
 		JPanel btnPanel = new JPanel();
+		btnPanel.setOpaque(false);
 		btnPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		JButton btn = new JButton("确定");
+		JButton btn = CreateIconButton.createBtn("确定", "image/btnIcon/confirm.png");
 		btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -2,9 +2,11 @@ package com.ds.controler;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.LayoutManager;
 import java.io.File;
 import java.io.IOException;
@@ -179,6 +181,15 @@ public class PanelControler {
 			super();
 			this.setAlignmentY(Component.CENTER_ALIGNMENT);
 			this.setLayout(layout);
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			ImageIcon imageIcon = new ImageIcon("image/super_bg/center.jpg");
+			Image image = imageIcon.getImage();
+			if(image != null)
+				g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, image.getWidth(null), image.getHeight(null), null);
 		}
 		
 		public void initPanel(){

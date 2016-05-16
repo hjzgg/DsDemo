@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -16,10 +18,12 @@ import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.ds.button.CreateIconButton;
 import com.ds.button.FunctionButton;
 import com.ds.controler.DrawControler;
 import com.ds.controler.PanelControler;
@@ -30,10 +34,10 @@ public class FunctionPanel extends JPanel{
 	public FunctionMsgPanel functionMsgPanel = null;
 	private JButton backBtn;
 	private int backStep = 0;//是否需要添加返回按钮
-	private JPanel panelNorth;
-	private JPanel panelEast;
-	private JPanel panelWest;
-	private JPanel panelSouth;
+	private BackgroundPanel panelNorth;
+	private BackgroundPanel panelEast;
+	private BackgroundPanel panelWest;
+	private BackgroundPanel panelSouth;
 	
 	private MyMenuPanel menuPanel = null;
 	
@@ -43,15 +47,13 @@ public class FunctionPanel extends JPanel{
 			panelWest.setPreferredSize(new Dimension(0, 0));
 			panelSouth.setPreferredSize(new Dimension(0, 0));
 			panelNorth.setPreferredSize(new Dimension(0, 50));
-			
-			panelNorth.add(menuPanel, 0);
+			menuPanel.setVisible(true);
 		} else {
 			panelEast.setPreferredSize(new Dimension(100, 0));
 			panelWest.setPreferredSize(new Dimension(100, 0));
 			panelSouth.setPreferredSize(new Dimension(0, 100));
 			panelNorth.setPreferredSize(new Dimension(0, 100));
-			
-			panelNorth.remove(menuPanel);
+			menuPanel.setVisible(false);
 		}
 	}
 	
@@ -121,19 +123,20 @@ public class FunctionPanel extends JPanel{
 	public FunctionPanel() {
 		setLayout(new BorderLayout(0, 0));
 		
-		panelWest = new JPanel();
+		panelWest = new BackgroundPanel("image/super_bg/left.png");
 		add(panelWest, BorderLayout.WEST);
 		
-		panelNorth = new JPanel();
+		panelNorth = new BackgroundPanel("image/super_bg/top.png");
 		GridBagLayout northPaneLayout = new GridBagLayout();
 		panelNorth.setLayout(northPaneLayout);
-		backBtn = new JButton("返回");
+		backBtn = CreateIconButton.createBtn("返回", "image/btnIcon/back.png");
 		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//清除面板上的图案
 				PanelControler.drawControler.getDrawModel().getShapeList().clear();
-
+				PanelControler.drawControler.getCodePanel().setText("");
+				PanelControler.drawControler.getMsgPanel().setText("");
 				--backStep;
 				if(backStep == 0) {
 					backBtn.setVisible(false);
@@ -148,14 +151,19 @@ public class FunctionPanel extends JPanel{
 		backBtn.setVisible(false);
 		
 		menuPanel = new MyMenuPanel(backBtn);
+		//设置菜单面板透明，以便显示背景图片
+		menuPanel.setOpaque(false);
+		menuPanel.setVisible(false);
+		panelNorth.add(menuPanel);
 		JPanel backBtnPanel = new JPanel();
-		
+		//设置返回按钮的面板背景图片透明
+		backBtnPanel.setOpaque(false);
 		panelNorth.add(backBtnPanel);
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
-		backBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 15));
+		backBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 		backBtnPanel.add(backBtn);
 		northPaneLayout.setConstraints(backBtnPanel, gbc);
 		gbc.weightx = 4;
@@ -163,10 +171,10 @@ public class FunctionPanel extends JPanel{
 		
 		add(panelNorth, BorderLayout.NORTH);
 		
-		panelSouth = new JPanel();
+		panelSouth = new BackgroundPanel("image/super_bg/bottom.png");
 		add(panelSouth, BorderLayout.SOUTH);
 		
-		panelEast = new JPanel();
+		panelEast = new BackgroundPanel("image/super_bg/right.png");
 		add(panelEast, BorderLayout.EAST);
 		
 		adjustPanelLayout(false);

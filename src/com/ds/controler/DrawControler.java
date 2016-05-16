@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -1245,7 +1246,7 @@ public class DrawControler {
 		PanelControler.initControler(new DrawControler(drawPanel, model));
 		MainFrame mainFrame = new MainFrame("数据结构算法模拟系统");
 		PanelControler.mainFrame = mainFrame;
-		WelcomeWindow welcome = new WelcomeWindow("image/huaqiangu.jpg", mainFrame, 2000);
+		WelcomeWindow welcome = new WelcomeWindow(mainFrame);
 	}
 
 }

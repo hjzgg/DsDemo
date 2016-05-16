@@ -1,6 +1,8 @@
 package com.ds.panel;
 
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -8,20 +10,21 @@ import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.ds.button.CreateIconButton;
 import com.ds.controler.DrawControler;
 import com.ds.controler.PanelControler;
 
 public class MyMenuPanel extends JPanel{
-	private JButton suspendBtn = new JButton("开始");
-	private JButton resumeBtn = new JButton("继续");
-	private JButton stopBtn = new JButton("结束");
+	private JButton suspendBtn = CreateIconButton.createBtn("开始", "image/btnIcon/begin.png");
+	private JButton resumeBtn = CreateIconButton.createBtn("继续", "image/btnIcon/continue.png");
+	private JButton stopBtn = CreateIconButton.createBtn("停止", "image/btnIcon/stop.png");
 	private String classAndMethodMsg = null;
 	private Thread modelThread = null;
-	
 	public void setClassAndMethodMsg(String classAndMethodMsg){
 		this.classAndMethodMsg = classAndMethodMsg;
 	}
