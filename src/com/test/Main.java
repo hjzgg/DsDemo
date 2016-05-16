@@ -17,39 +17,62 @@ import java.util.TreeMap;
 
 import com.ds.shape.DsImage;
 
- 
+
+class Node{
+	int x, y;
+
+	public Node(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+}
+
 public class Main {
-	
-	private static boolean KMP_NEXT_VAL(String s, String t){
-		int[] next = new int[t.length()+1];
-		next[0] = -1;
-		next[1] = 0;
-		for(int i=1; i<t.length(); ++i){
-			int j = next[i];
-			while(j!=-1 && t.charAt(i)!=t.charAt(j)) j = next[j];
-			next[i+1] = j+1;
-			if(i+1 < t.length()) {
-				if(t.charAt(i+1) == t.charAt(j+1))
-					next[i+1] = next[j+1];
+	private static int[][] dir = {{0,1}, {1,0}, {-1,0}, {0,-1}};
+	private static int n, m, ex, ey;
+	private static boolean[][] vis;
+	private static int[][] maze;
+	private static boolean bfs(int x, int y){
+		Queue<Node> queue = new LinkedList<Node>();
+		queue.add(new Node(x, y));
+		vis[x][y] = true;
+		while(!queue.isEmpty()){
+			Node cur = queue.poll();
+			if(cur.x == ex && cur.y == ey) return true;
+			for(int i=0; i<dir.length; ++i){
+				int xx = x + dir[i][0];
+				int yy = y + dir[i][1];
+				if(xx < 0 || xx >= n || yy < 0 || yy >= m) continue;
+				if(vis[xx][yy] || maze[xx][yy] > 0) continue;
+				vis[xx][yy] = true;
+				queue.add(new Node(xx, yy));
 			}
 		}
 		
-		for(int i=0, j=0; i < s.length(); ){
-			if(j==-1 || s.charAt(i) == t.charAt(j)){
-				++i;
-				++j;
-				if(j == t.length()) return true;
-			} else {
-				j = next[j];
-			}
-		}
 		return false;
 	}
-	
 	public static void main(String[] args){
 		 Scanner scan = new Scanner(System.in);
-		 String s = scan.nextLine();
-		 String t = scan.nextLine();
-		 System.out.println(KMP_NEXT_VAL(s, t));
+		 //迷宫的维度
+		 n = scan.nextInt();
+		 m = scan.nextInt();
+		 //其实位置
+		 int bx = scan.nextInt();
+		 int by = scan.nextInt();
+		 //结束位置
+		 ex = scan.nextInt();
+		 ey = scan.nextInt();
+		 
+		 vis = new boolean[n][m];
+		 maze = new int[n][m];
+		//输入0，1串，0表示空地
+		 for(int i=0; i<n; ++i){
+			 for(int j=0; j<m; ++j){
+				 maze[i][j] = scan.nextInt();
+				 vis[i][j] = false;
+			 }
+		 }
+		 System.out.println(bfs(bx, by));
 	}
 }
