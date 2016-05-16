@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,9 +47,27 @@ public class LoginPanel extends JPanel{
 		codeImgLabel.setIcon(codeImg);
 	}
 	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		ImageIcon imageIcon = new ImageIcon("image/login_and_register.jpg");
+		Image image = imageIcon.getImage();
+		if(image != null)
+			g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, image.getWidth(null), image.getHeight(null), null);
+	}
+	
 	public LoginPanel(CommunicationPanel pPanel) {
 		this.parentPanel = pPanel;
 		setLayout(new BorderLayout(0, 0));
+		
+		BackgroundPanel panel_center = new BackgroundPanel("image/lrbg.png");
+		add(panel_center, BorderLayout.CENTER);
+		panel_center.setLayout(new BorderLayout(0, 0));
+		loginPanel = new JPanel();
+		loginPanel.setOpaque(false);
+		loginPanel.setBorder(BorderFactory.createTitledBorder("用户登录"));
+		panel_center.add(loginPanel);
+		loginPanel.setLayout(new GridLayout(6, 1, 0, 0));
 		
 		JPanel panel_left = new JPanel();
 		panel_left.setPreferredSize(new Dimension(400, 0));
@@ -65,16 +86,12 @@ public class LoginPanel extends JPanel{
 		panel_down.setPreferredSize(new Dimension(0, 200));
 		add(panel_down, BorderLayout.SOUTH);
 		
-		Panel panel_center = new Panel();
-		panel_center.setSize(new Dimension(400, 500));
-		add(panel_center, BorderLayout.CENTER);
-		panel_center.setLayout(new BorderLayout(0, 0));
-		loginPanel = new JPanel();
-		loginPanel.setBorder(BorderFactory.createTitledBorder("用户登录"));
-		panel_center.add(loginPanel);
-		loginPanel.setLayout(new GridLayout(5, 1, 0, 0));
+		JPanel emptyPanel = new JPanel();
+		emptyPanel.setOpaque(false);
+		loginPanel.add(emptyPanel);
 		
 		JPanel panel_login_name = new JPanel();
+		panel_login_name.setOpaque(false);
 		loginPanel.add(panel_login_name);
 		panel_login_name.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
@@ -86,6 +103,7 @@ public class LoginPanel extends JPanel{
 		usernameFiled.setColumns(20);
 		
 		JPanel panel_login_password = new JPanel();
+		panel_login_password.setOpaque(false);
 		loginPanel.add(panel_login_password);
 		panel_login_password.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
@@ -97,6 +115,7 @@ public class LoginPanel extends JPanel{
 		passwodFiled.setColumns(20);
 		
 		JPanel panel_login_code = new JPanel();
+		panel_login_code.setOpaque(false);
 		loginPanel.add(panel_login_code);
 		panel_login_code.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
@@ -122,11 +141,13 @@ public class LoginPanel extends JPanel{
 		panel_login_code.add(codeImgLabel);
 		
 		JPanel panel = new JPanel();
+		panel.setOpaque(false);
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
 		flowLayout.setHgap(20);
 		loginPanel.add(panel);
 		
 		JCheckBox checkBox = new JCheckBox("\u8BB0\u4F4F\u6211");
+		checkBox.setOpaque(false);
 		panel.add(checkBox);
 		
 		//登录按钮
@@ -163,6 +184,7 @@ public class LoginPanel extends JPanel{
 		panel.add(button);
 		
 		JPanel login_register_panel = new JPanel();
+		login_register_panel.setOpaque(false);
 		loginPanel.add(login_register_panel);
 		
 		JLabel registerLabel = new JLabel("还没有账号，注册");
@@ -175,5 +197,10 @@ public class LoginPanel extends JPanel{
 		registerLabel.setForeground(Color.RED);
 		registerLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		login_register_panel.add(registerLabel);
+		
+		panel_down.setOpaque(false);
+		panel_left.setOpaque(false);
+		panel_right.setOpaque(false);
+		panel_top.setOpaque(false);
 	}
 }
