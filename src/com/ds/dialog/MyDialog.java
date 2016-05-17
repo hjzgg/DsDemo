@@ -277,7 +277,7 @@ public class MyDialog extends JDialog {
 			
 			JPanel rightPanel = new JPanel();
 			rightPanel.setOpaque(false);
-			rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 			selectPane.add(rightPanel);
 			JLabel weightLable = new JLabel("Ȩֵ:");
 			weightLable.setOpaque(true);

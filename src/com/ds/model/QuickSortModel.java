@@ -1,6 +1,7 @@
 package com.ds.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
@@ -362,6 +363,7 @@ public class QuickSortModel {
 	public QuickSortModel(DrawModel model, Boolean firstOrSecond) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 		this.firstOrSecond = firstOrSecond;
 		shapeList = model.getShapeList();
 	}

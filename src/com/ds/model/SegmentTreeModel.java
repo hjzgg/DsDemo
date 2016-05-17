@@ -1,5 +1,6 @@
 package com.ds.model;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import com.ds.shape.DsLine;
@@ -69,6 +70,7 @@ public class SegmentTreeModel{
 	public SegmentTreeModel(DrawModel model, Boolean maxOrMin) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 		this.maxOrMin = maxOrMin;
 	}
 }

@@ -1,5 +1,6 @@
 package com.ds.model;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import com.ds.shape.DsBIndexedTreeRect;
@@ -85,6 +86,7 @@ public class BinaryIndexedTreeModel{
 	public BinaryIndexedTreeModel(DrawModel model) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 	}
 	
 	 

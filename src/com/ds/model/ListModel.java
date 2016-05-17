@@ -1,6 +1,7 @@
 package com.ds.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -908,6 +909,7 @@ public class ListModel{
 	
 	public ListModel(DrawModel model) {
 		super();
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 		this.model = model;
 	}
 }

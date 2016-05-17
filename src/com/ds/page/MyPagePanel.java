@@ -32,7 +32,7 @@ public class MyPagePanel extends JPanel{
 	private JTextField jumpText = new JTextField(5);//输入页号
 	private JLabel totPageLabel = new JLabel("共0页");//提示一共多少页
 	
-	public static final int PAGE_SIZE = 4;
+	public static final int PAGE_SIZE = 20;
 	private CommunicationPanel parentPanel;
 	private ChatPanel chatPanel;
 	//刷新某页

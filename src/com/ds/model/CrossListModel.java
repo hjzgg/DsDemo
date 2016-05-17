@@ -1,6 +1,7 @@
 package com.ds.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
@@ -151,6 +152,7 @@ public class CrossListModel{
 	public CrossListModel(DrawModel model, Boolean isDirected) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 		this.isDirected = isDirected;
 	}
 	

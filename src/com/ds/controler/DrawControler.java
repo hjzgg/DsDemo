@@ -3,6 +3,7 @@ package com.ds.controler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.net.MalformedURLException;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -204,6 +205,7 @@ public class DrawControler {
 			dialog.setDataDemoContent("A,B,C,D,E,F,G,H");
 			dialog.setDataFormatContent("节点值,节点值,节点值....");
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
 			if(dialog.getData() == null || "".equals(dialog.getData())) return;
 			dialog.setVisible(true);
 			{
@@ -1239,7 +1241,7 @@ public class DrawControler {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws MalformedURLException {
 		DrawPanel drawPanel = new DrawPanel();
 		DrawModel model = new DrawModel();
 		//通过PanelControler 来管理 DrawControler

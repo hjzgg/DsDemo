@@ -77,6 +77,9 @@ public class EmailDialog extends JDialog{
 	
 	public EmailDialog(Frame owner, boolean modal) {
 		super(owner, modal);
+		
+		this.setResizable(false);
+		
 		Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds((screenDimension.width-width)/2, (screenDimension.height-height)/2, width, height);
 		getContentPane().setLayout(new BorderLayout(0, 0));

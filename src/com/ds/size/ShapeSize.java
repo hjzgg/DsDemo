@@ -1,6 +1,12 @@
 package com.ds.size;
 
 public class ShapeSize {
+	//如果窗口没有动态改变preferenceSize的大小，那么就设成固定的值。
+	public class WindowInitSize{
+		public static final int WIDTH = 2000;
+		public static final int HEIGHT = 2000;
+	}
+	
 	public class ArrayModel{
 		public static final int ROW_NUM = 4;
 		public static final int RECT_WIDTH = 50;
@@ -169,7 +175,7 @@ public class ShapeSize {
 		public static final int NODE_WIDTH = 80;
 		public static final int NODE_HEIGHT = 30;
 		public static final int LEFT_MARGIN = 50;
-		public static final int BUCKET_WIDTH = 60;
+		public static final int BUCKET_WIDTH = 90;
 		public static final int BUCKET_DIST = 30 + NODE_WIDTH;
 		
 		public static final int TIP_AND_BUCKET_DIST = 10;

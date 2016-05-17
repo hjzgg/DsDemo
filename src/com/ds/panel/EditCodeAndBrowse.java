@@ -342,10 +342,10 @@ class EditCodePane extends JPanel{
 		    new AboutAction()
 		  };
 		 
-		 StyleContext sc = StyleContext.getDefaultStyleContext();
-		 TabSet tabs = new TabSet(new TabStop[] { new TabStop(10) });
-		 AttributeSet paraSet = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.TabSet, tabs);
-		 textPane.setParagraphAttributes(paraSet, false);
+//		 StyleContext sc = StyleContext.getDefaultStyleContext();
+//		 TabSet tabs = new TabSet(new TabStop[] { new TabStop(50) });
+//		 AttributeSet paraSet = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.TabSet, tabs);
+//		 textPane.setParagraphAttributes(paraSet, false);
 		 
 		 textPane.addKeyListener(new KeyAdapter() {
 			@Override

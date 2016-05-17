@@ -1,5 +1,6 @@
 package com.ds.model;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -130,5 +131,6 @@ public class GListModel{
 	public GListModel(DrawModel model) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 	}
 }

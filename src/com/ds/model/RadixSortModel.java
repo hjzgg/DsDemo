@@ -1,6 +1,7 @@
 package com.ds.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
@@ -630,6 +631,7 @@ public class RadixSortModel {
 	public RadixSortModel(DrawModel model, Boolean lsdOrMsd) {
 		super();
 		this.model = model;
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.WindowInitSize.WIDTH, ShapeSize.WindowInitSize.HEIGHT));
 		this.lsdOrMsd = lsdOrMsd;
 		shapeList = model.getShapeList();
 	}

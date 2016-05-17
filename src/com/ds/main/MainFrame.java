@@ -1,15 +1,18 @@
 package com.ds.main;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -20,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.ds.dialog.AboutDialog;
 import com.ds.panel.CommunicationPanel;
 import com.ds.panel.EditCodeAndBrowse;
 import com.ds.panel.FunctionPanel;
@@ -33,11 +37,22 @@ public class MainFrame extends JFrame{
     private final JPanel[] tabComponents = new JPanel[tabText.length];
     private final JMenuItem[] functionItems = new JCheckBoxMenuItem[tabText.length];
     private final JMenuItem componentTabItem = new JCheckBoxMenuItem("设置为可关闭的tab");
+    
     public MainFrame(String title) {
-       //设置frame标题名 
-       super(title);
-       //设置关闭方式
-       addWindowListener(new WindowAdapter() {
+    	//设置frame标题名 
+    	super(title);
+    	//设置图标
+    	ImageIcon framemageIcon = new ImageIcon("image/frame_icon.png");
+    	this.setIconImage(framemageIcon.getImage());
+    	//设置背景图
+    	ImageIcon imageIcon = new ImageIcon("image/main_title.png");
+		JLabel imgLabel = new JLabel(imageIcon);//将背景图放在标签里。
+		this.getLayeredPane().add(imgLabel, new Integer(Integer.MIN_VALUE));//注意这里是关键，将背景标签添加到dialog的LayeredPane面板里。
+		imgLabel.setBounds(0, 0, imageIcon.getIconWidth(), imageIcon.getIconHeight());//设置背景标签的位置
+	    ((JPanel)this.getContentPane()).setOpaque(false);
+    	
+        //设置关闭方式
+        addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				//终止所有计时器中的任务
@@ -74,6 +89,7 @@ public class MainFrame extends JFrame{
    
     //初始化tabpanel相关配置，并且用于resize的调用
     private void createMainFrame() {
+       pane.setOpaque(false);
        //创建标签并初始化标签上的文字和Button
        for(int i=0; i < tabText.length; ++i){
     	   contentPanels[i] = createContent(i);
@@ -125,13 +141,13 @@ public class MainFrame extends JFrame{
     private void initMenu() {
        //创建一个菜单条
        JMenuBar mb = new JMenuBar();
+       mb.setOpaque(false);
        
        //设置有关闭按键的标签
        componentTabItem.setSelected(true);
        //设置可关闭的标签的菜单
        componentTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,InputEvent.CTRL_MASK));
        componentTabItem.addActionListener(new ActionListener() {
-          
            @Override
            public void actionPerformed(ActionEvent e) {
               for(int i = 0 ; i<tabText.length && i<pane.getTabCount(); i++){
@@ -158,6 +174,18 @@ public class MainFrame extends JFrame{
     	   functionMenu.add(functionItems[i]);
        }
        mb.add(functionMenu);
+       
+       JMenu aboutMenu = new JMenu("关于");
+       JMenuItem aboutMenuItem = new JMenuItem("系统");
+       aboutMenu.add(aboutMenuItem);
+       aboutMenuItem.addActionListener(new ActionListener() {
+    	   @Override
+    	   public void actionPerformed(ActionEvent e) {
+    		   AboutDialog about = new AboutDialog(MainFrame.this);
+    		   about.setVisible(true);
+    	   }
+       });
+       mb.add(aboutMenu);
        
        setJMenuBar(mb);
     }
