@@ -159,7 +159,9 @@ public class RadixSortModel {
 				synchronized (Shape.class) {shapeList.remove(rect);}
 			}
 			
-			while(run.isRunStop());//阻塞
+			while(run.isRunStop()){//阻塞
+				System.out.println("阻塞...");
+			}
 			for(int j=0; j < nodeList.size(); ++j) {
 				nodeList.get(j).content = nodeList.get(j).shape.content = bucket.get(j).content;
 				bucket.get(j).content = "";
@@ -551,7 +553,9 @@ public class RadixSortModel {
 			synchronized (Shape.class) {shapeList.remove(rect);}
 		}
 		
-		while(run.isRunStop());//阻塞
+		while(run.isRunStop()){//阻塞
+			System.out.println("阻塞....");
+		}
 		for(int j=ld, k=0; j <= rd; ++j, ++k) {
 			nodeList.get(j).content = nodeList.get(j).shape.content = bucket.get(k).content;
 			bucket.get(k).content = "";

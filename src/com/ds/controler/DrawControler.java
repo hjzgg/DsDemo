@@ -1180,6 +1180,12 @@ public class DrawControler {
 		private int showWay = 1;
 		public void formula(){
 			setData(initDialog("表达式计算模拟"));
+			{
+				JSONObject jsono = new JSONObject();
+				jsono.put(MsgPanelConstants.TITLE, showWay == 1 ? "表达式计算之栈方式模拟" : "表达式计算之二叉树方式模拟");
+				jsono.put("表达式: ", data+"=");
+				PanelControler.initMsgPanelText(jsono);
+			}
 			if(showWay == 1)
 				formulaStack();
 			else if(showWay == 2)

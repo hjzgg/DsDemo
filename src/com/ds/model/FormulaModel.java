@@ -286,8 +286,8 @@ public class FormulaModel {
 		createFormulaTreeModel(root, 1, false);
 		
 		int tw = ShapeSize.FormulaModel.LEFT_MARGIN + treeNodeCnt*(ShapeSize.FormulaModel.NODES_HOR_DIST + ShapeSize.FormulaModel.CIRCLE_WIDTH);
-		if(tw < ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH)
-			tw = ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH;
+		if(tw < ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+3)*ShapeSize.FormulaModel.RECT_WIDTH)
+			tw = ShapeSize.FormulaModel.LEFT_MARGIN+(formulaRects.size()+3)*ShapeSize.FormulaModel.RECT_WIDTH;
 		int th = treeBottom + ShapeSize.FormulaModel.CIRCLE_HEIGHT;
 		model.getObserverPanel().setPreferredSize(new Dimension(tw, th));
 		buildTDisplay(formulaRects, 0, formulaRects.size()-1);
@@ -419,7 +419,7 @@ public class FormulaModel {
 			formulaList.add(new FormulaNode(datas[i], rect));
 		}
 		
-		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.FormulaModel.LEFT_MARGIN+(formulaList.size()+1)*ShapeSize.FormulaModel.RECT_WIDTH, 0));
+		model.getObserverPanel().setPreferredSize(new Dimension(ShapeSize.FormulaModel.LEFT_MARGIN+(formulaList.size()+2)*ShapeSize.FormulaModel.RECT_WIDTH, 0));
 		
 		StackList opts = new StackList(model);
 		StackList opds = new StackList(model);
@@ -525,7 +525,10 @@ public class FormulaModel {
 			   new Thread(ro).start();
 			   opts.deleteAdjust();
 			   opds.deleteAdjust();
-			   while(!ra.isOver || !rb.isOver || !ro.isOver);
+			   //这里可以改成 线程的join方式，依次来阻塞, 否则在while循环中加入语句，不然打包成exe后进入死循环
+			   while(!ra.isOver || !rb.isOver || !ro.isOver){
+				   System.out.println("阻塞...");
+			   }
 			   FormulaNode c = kernelCal(a, o, b);
 			   DsSampleRect msa = new DsSampleRect(msgOpdL.lx, msgOpdL.ly, msgOpdL.lw, msgOpdL.lh, msgOpdL.content);
 			   msa.fontSize = msgOpdL.fontSize;
