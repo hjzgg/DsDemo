@@ -14,7 +14,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,8 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 public class CompileAndRunJavaFile {
-	public static void main(String[] args) {
+	
+//	public static void main(String[] args) {
 //		StringBuilder code = new StringBuilder();
 //		try {
 //			BufferedReader br = new BufferedReader(new FileReader(new File("C:/Users/峻峥/Desktop/Main.java")));
@@ -51,7 +54,8 @@ public class CompileAndRunJavaFile {
 //		} else if(cr.isRunningError()) {
 //			System.out.println("运行错误: " + cr.getError());
 //		}
-	}
+//	}
+	
 	//编译错误
 	private StringBuilder ce = new StringBuilder();
 	public String getCE(){
@@ -115,12 +119,12 @@ public class CompileAndRunJavaFile {
 	private static final String methodName = "main";
 	private String getClassOutput(){
 		//设置class文件的存放位置
-		String path = System.getProperty("java.class.path");
-		if(path.contains("bin"))
-			path = path.substring(0, path.indexOf("bin")) + "myClass/";
-		return path;
+//		String path = System.getProperty("java.class.path");
+//		if(path.contains("bin"))
+//			path = path.substring(0, path.indexOf("bin")) + "myClass/";
+//		return path;
 		//直接返回就可以啊。
-		//return "myClass/";
+		return "myClass/";
 	}
 	
 	public void compileAndRunJavaFile(String code, String selectTest){
@@ -144,10 +148,9 @@ public class CompileAndRunJavaFile {
 			// define the diagnostic object, which will be used to save the
 	        // diagnostic information
 	        DiagnosticCollector<JavaFileObject> oDiagnosticCollector = new DiagnosticCollector<JavaFileObject>();
-			StandardJavaFileManager fileManager = compiler.getStandardFileManager(oDiagnosticCollector, null, null);
+			StandardJavaFileManager fileManager = compiler.getStandardFileManager(oDiagnosticCollector, new Locale("zh","CN"), Charset.forName("UTF-8"));
 			// set class output location
 			fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(new File[] { new File(getClassOutput()) }));
-			
 			StringSourceJavaObject sourceObject = new CompileAndRunJavaFile.StringSourceJavaObject(className, code);
 			Iterable<? extends JavaFileObject> fileObjects = Arrays.asList(sourceObject);
 			CompilationTask task = compiler.getTask(null, fileManager, oDiagnosticCollector, null, null, fileObjects);

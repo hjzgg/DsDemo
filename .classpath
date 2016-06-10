@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_30"/>
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/json-lib-2.4.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/commons-lang-2.5.jar"/>
@@ -9,5 +8,6 @@
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse_javase/eclipse/workspace/DsDemo/lib/commons-beanutils-1.8.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
