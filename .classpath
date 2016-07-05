@@ -10,5 +10,4 @@
 	<classpathentry kind="lib" path="D:/eclipse_mars/myWorkspace/DsDemo/lib/ezmorph-1.0.6.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse_mars/myWorkspace/DsDemo/lib/json-lib-2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
-	hehe
 </classpath>
